@@ -38,17 +38,16 @@ export default function Home() {
     }, 10);
   };
 
+  // 평판 조회 탭으로 이동 시 검색창 상태를 명확히 리셋
+  const handleTabToSearch = () => {
+    setActiveTab('search');
+    setShowReputationForm(false);
+    setSearchResetKey(prev => prev + 1);
+  };
+
   return (
     <main className="min-h-screen bg-gradient-to-br from-primary-50 via-white to-navy-50">
-      <Header onLogoClick={handleLogoClick} />
-      <div className="container mx-auto px-4 py-5 flex justify-end">
-        <button
-          onClick={() => setIsLoginOpen(true)}
-          className="px-6 py-2 bg-gradient-to-r from-accent to-accent-dark text-white font-semibold rounded-lg hover:shadow-lg transition transform hover:scale-105 whitespace-nowrap"
-        >
-          로그인
-        </button>
-      </div>
+      <Header onLogoClick={handleLogoClick} onLoginClick={() => setIsLoginOpen(true)} />
 
       {/* 히어로 섹션 */}
       {activeTab !== 'community' && (
@@ -57,7 +56,6 @@ export default function Home() {
             <div className="inline-block mb-4">
               <span className="badge badge-gold text-sm">부동산 평판 인사이트 플랫폼</span>
             </div>
-            
             <h2 className="text-5xl md:text-6xl font-bold text-navy-900 mb-6">
               <span className="block">부동산 평판을</span>
               <span className="block text-gradient mt-3 md:mt-4">블러내다!</span>
@@ -128,10 +126,7 @@ export default function Home() {
       >
         <div className="flex justify-center space-x-3" data-tabnav>
           <button
-            onClick={() => {
-              setActiveTab('search')
-              setShowReputationForm(false)
-            }}
+            onClick={handleTabToSearch}
             className={`btn ${
               activeTab === 'search' 
                 ? 'btn-primary' 

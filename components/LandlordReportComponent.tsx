@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { FaStar, FaUser, FaMapMarkerAlt, FaThumbsUp, FaThumbsDown, FaTrash, FaComments } from 'react-icons/fa'
 import GaugeChart from './GaugeChart'
 import { supabase } from '../lib/supabase'
+import { createLandlordReport } from '../lib/api/landlordReport'
 
 export interface Review {
   id: string;
@@ -483,22 +484,24 @@ export default function LandlordReportComponent({
     setLocalKeywordSelections(nextSelections)
     setTopKeywordTags(nextTopKeywords)
     persistLocalKeywordSelections(nextSelections)
-    if (report.id) {
-      try {
-        await persistEvaluationScore(evaluationScore)
-        await persistKeywordSelection(keywordSelection)
-        await fetchAverageEvaluation()
-        await fetchTopKeywords()
-      } catch (error) {
-        console.error('Failed to save evaluation score:', error)
-      }
+    // Supabase에 실제 데이터 저장
+    try {
+      const saved = await createLandlordReport({
+        address: report.address,
+        evaluation: nextAverage,
+        positiveTraits: nextTopKeywords.filter(k => positiveKeywords.has(k)),
+        negativeTraits: nextTopKeywords.filter(k => negativeKeywords.has(k)),
+        reviews: [], // 리뷰는 별도 구현 필요
+      });
+      onSubmitSuccess?.({
+        address: report.address,
+        averageEvaluation: nextAverage,
+        topKeywords: nextTopKeywords,
+      });
+      alert('평판이 Supabase DB에 저장되었습니다!');
+    } catch (error) {
+      alert('Supabase 저장 실패: ' + (error?.message || error));
     }
-    onSubmitSuccess?.({
-      address: report.address,
-      averageEvaluation: nextAverage,
-      topKeywords: nextTopKeywords,
-    })
-    alert('리뷰가 로컬에 저장되었습니다. (Supabase 연동 비활성화)')
   }
 
 
@@ -1205,10 +1208,11 @@ export default function LandlordReportComponent({
               displayKeywordTags.map((tag) => {
                 const isPositive = positiveKeywords.has(tag)
                 const isNegative = negativeKeywords.has(tag)
+                // 연한 색상으로 조정: 파랑(좋은), 빨강(나쁜)
                 const toneClass = isNegative
-                  ? 'text-red-600 border-red-200 bg-red-50'
+                  ? 'text-red-600 border-red-100 bg-red-50'
                   : isPositive
-                    ? 'text-blue-700 border-blue-200 bg-blue-50'
+                    ? 'text-blue-600 border-blue-100 bg-blue-50'
                     : 'text-slate-600 border-slate-200 bg-slate-50'
                 return (
                   <span
@@ -1558,16 +1562,24 @@ export default function LandlordReportComponent({
             <h4 className="text-xl font-bold text-navy-900 mb-2">아직 등록된 이야기가 없습니다</h4>
             <p className="text-navy-600">이 주소에 대한 경험을 공유해주세요.</p>
           </div>
-          {onGoHome && (
-            <div className="pb-6 flex justify-center">
+          <div className="flex flex-col items-center gap-2 pb-6">
+            {onWriteReputation && (
+              <button
+                onClick={onWriteReputation}
+                className="w-full bg-gradient-to-r from-accent to-accent-dark hover:shadow-lg text-white font-bold py-3 px-4 rounded-xl transition"
+              >
+                평판 제보하기
+              </button>
+            )}
+            {onGoHome && (
               <button
                 onClick={onGoHome}
-                className="text-sm font-semibold text-navy-500 hover:text-navy-700 transition"
+                className="w-full bg-navy-100 text-navy-700 font-bold py-2 px-4 rounded-xl hover:bg-navy-200 transition"
               >
                 홈으로 가기
               </button>
-            </div>
-          )}
+            )}
+          </div>
         </div>
       )}
     </div>

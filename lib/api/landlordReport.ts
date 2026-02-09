@@ -1,3 +1,13 @@
+// 주소로 landlord_reports에서 리포트 1건을 가져오는 함수
+export async function fetchLandlordReportByAddress(address: string) {
+  const { data, error } = await supabase
+    .from('landlord_reports')
+    .select('*')
+    .eq('address', address)
+    .maybeSingle();
+  if (error) throw error;
+  return data;
+}
 import { supabase } from '../supabase';
 
 export interface LandlordReportInsert {

@@ -22,6 +22,7 @@ export default function KakaoAddressSearch({ onSelect, placeholder = '주소 검
     setIsLoading(true)
     setError('')
     setResults([])
+    setSelected(null) // 검색 시 선택 해제
     try {
       const res = await fetch(`/api/kakao-address?query=${encodeURIComponent(query)}`)
       if (!res.ok) throw new Error('검색 실패')
@@ -63,6 +64,7 @@ export default function KakaoAddressSearch({ onSelect, placeholder = '주소 검
               onChange={e => setQuery(e.target.value)}
               onKeyDown={e => e.key === 'Enter' && handleSearch()}
               className="input-field flex-1"
+              autoComplete="off"
             />
             <button
               onClick={handleSearch}
@@ -90,6 +92,7 @@ export default function KakaoAddressSearch({ onSelect, placeholder = '주소 검
               ))}
             </ul>
           )}
+          <div className="text-xs text-gray-500 mt-1">※ 반드시 검색 결과에서 주소를 선택해 주세요.</div>
         </>
       ) : (
         <div className="flex items-center gap-2 bg-gray-50 border rounded px-3 py-2">

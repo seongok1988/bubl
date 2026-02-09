@@ -169,7 +169,7 @@ export default function LandlordReportComponent({
     '연락 느림',
   ])
 
-  const displayEvaluation = overrideAverageEvaluation ?? averageEvaluation ?? report.evaluation
+  const displayEvaluation = overrideAverageEvaluation ?? averageEvaluation ?? (report ? report.evaluation : undefined)
   const hasEvaluation = !!displayEvaluation
   const landlordNoteTags = selectedKeywords.length
     ? selectedKeywords

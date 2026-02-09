@@ -1,0 +1,122 @@
+@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css');
+@import url('https://fonts.googleapis.com/css2?family=Unbounded:wght@400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --foreground-rgb: 16, 42, 67;
+  --background-start-rgb: 250, 248, 243;
+  --background-end-rgb: 255, 255, 255;
+}
+
+* {
+  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+}
+
+body {
+  color: rgb(var(--foreground-rgb));
+  background: linear-gradient(
+      135deg,
+      rgb(var(--background-start-rgb)) 0%,
+      rgb(var(--background-end-rgb)) 100%
+    );
+  font-feature-settings: "ss01" on, "ss02" on;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* 커스텀 스타일 */
+.card {
+  @apply bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 p-8 border border-gray-100;
+}
+
+.card-premium {
+  @apply bg-gradient-to-br from-white to-primary-50 rounded-2xl shadow-xl p-8 border border-accent-light/20;
+}
+
+.btn {
+  @apply px-6 py-3 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 active:scale-95;
+}
+
+.btn-primary {
+  @apply bg-gradient-to-r from-accent-dark to-accent text-white shadow-lg hover:shadow-xl;
+}
+
+.btn-secondary {
+  @apply bg-navy-700 text-white hover:bg-navy-800 shadow-lg hover:shadow-xl;
+}
+
+.btn-outline {
+  @apply border-2 border-accent text-accent hover:bg-accent hover:text-white;
+}
+
+.input-field {
+  @apply w-full px-5 py-3.5 border-2 border-gray-200 rounded-xl 
+         focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent
+         transition-all duration-200 bg-white text-navy-900 placeholder-gray-400;
+}
+
+.badge {
+  @apply inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold;
+}
+
+.badge-gold {
+  @apply bg-accent-light/20 text-accent-dark border border-accent-light;
+}
+
+.badge-navy {
+  @apply bg-navy-100 text-navy-800 border border-navy-200;
+}
+
+.badge-success {
+  @apply bg-emerald-100 text-emerald-800 border border-emerald-200;
+}
+
+.badge-warning {
+  @apply bg-red-100 text-red-800 border border-red-200;
+}
+
+/* 그라데이션 텍스트 */
+.text-gradient {
+  @apply bg-gradient-to-r from-accent-dark via-accent to-accent-light bg-clip-text text-transparent;
+}
+
+/* 애니메이션 */
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+/* 스크롤바 스타일링 */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #B8914D;
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #8A6534;
+}
+
+/* 선택 텍스트 색상 */
+::selection {
+  background-color: #D4AF37;
+  color: white;
+}

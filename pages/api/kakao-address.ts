@@ -1,6 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 
-const KAKAO_REST_API_KEY = process.env.NEXT_PUBLIC_KAKAO_REST_API_KEY
+// Use a server-only Kakao REST API key (do NOT expose as NEXT_PUBLIC_)
+const KAKAO_REST_API_KEY = process.env.KAKAO_REST_API_KEY
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const { query } = req.query

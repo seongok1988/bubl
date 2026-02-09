@@ -1,3 +1,71 @@
+# SECURITY_GUIDE
+
+This document contains concrete, copy-pasteable guidance for securing the community features in this repo.
+
+1) Move secrets to server env
+- Do not store service or third-party keys in frontend code. Keep them in server-only env vars (no `NEXT_PUBLIC_` prefix).
+- Example: set `KAKAO_REST_API_KEY` (server-only) and reference it in `pages/api/kakao-address.ts`.
+
+2) Supabase Row-Level Security (RLS) examples
+- Enable RLS and add policies so clients cannot spoof `user_id`.
+
+-- Posts table (recommended schema: id, community_id, user_id, title, content, status, created_at)
+```sql
+ALTER TABLE posts ENABLE ROW LEVEL SECURITY;
+
+-- Allow authenticated users to insert posts only when their user_id matches auth.uid()
+CREATE POLICY "Insert own posts" ON posts
+  FOR INSERT
+  WITH CHECK (auth.uid() = user_id);
+
+-- Allow users to update their own posts
+CREATE POLICY "Update own posts" ON posts
+  FOR UPDATE
+  USING (auth.uid() = user_id);
+
+-- Allow users to delete their own posts
+CREATE POLICY "Delete own posts" ON posts
+  FOR DELETE
+  USING (auth.uid() = user_id);
+```
+
+- For comments, apply the same pattern.
+
+3) Admin actions & service role usage
+- For moderation tasks (hide/unhide, delete, escalate), create server-only admin API endpoints under `pages/api/admin/*` that use the Supabase service role key.
+- Never expose the service role key to the client.
+
+Example admin handler (simplified):
+```ts
+// pages/api/admin/hide-post.ts
+import type { NextApiRequest, NextApiResponse } from 'next'
+import { createClient } from '@supabase/supabase-js'
+
+const supabaseAdmin = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL || '', process.env.SUPABASE_SERVICE_ROLE_KEY || '')
+
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  // authenticate this endpoint with your own check (API token, auth0, etc.)
+  const { postId, hide } = req.body
+  const { error } = await supabaseAdmin.from('posts').update({ status: hide ? 'hidden' : 'published' }).eq('id', postId)
+  if (error) return res.status(500).json({ error: error.message })
+  return res.status(200).json({ ok: true })
+}
+```
+
+4) Input validation & XSS prevention
+- Store plain text where possible. If rich text is required, sanitize on the server before storing or rendering.
+- Validate length limits and allowed characters in `createPost` / `createComment` helpers in `lib/api/*` and also in PL/pgSQL constraints if desired.
+
+5) Rate limiting & abuse protection
+- Add simple per-IP or per-user rate limits to API routes (e.g., address search, post creation). For small scale, consider an in-memory store with time windows; for production, use Redis or provider features.
+
+6) Audit logging
+- Log moderation and failed auth attempts to a secure table or external logging service. Avoid logging secrets.
+
+7) Quick checklist before PR
+- Remove hardcoded keys from frontend files.
+- Add any server-only keys to environment and `.env.example`.
+- Ensure RLS policies cover `INSERT/UPDATE/DELETE` checks for `user_id`.
 # 🔒 부블 로그인 시스템 - 보안 가이드
 
 ## ✅ 구현된 보안 기능

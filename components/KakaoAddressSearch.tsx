@@ -8,8 +8,6 @@ interface KakaoAddressSearchProps {
   className?: string
 }
 
-const KAKAO_REST_API_KEY = '306ada6405de7dfb3fa6a24e1397885e'
-
 export default function KakaoAddressSearch({ onSelect, placeholder = '주소 검색', buttonLabel = '검색', className = '' }: KakaoAddressSearchProps) {
   const [query, setQuery] = useState('')
   const [results, setResults] = useState<any[]>([])

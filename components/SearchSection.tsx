@@ -17,6 +17,7 @@ export default function SearchSection({ showReputationForm, setShowReputationFor
   const [submittedAddresses, setSubmittedAddresses] = useState<Record<string, boolean>>({})
   const [resultOverrides, setResultOverrides] = useState<Record<string, { averageEvaluation: LandlordEvaluation | null; topKeywords: string[] }>>({})
   const [resetSeed, setResetSeed] = useState(0)
+  const [selectedAddress, setSelectedAddress] = useState<string | null>(null)
   const formContainerRef = useRef<HTMLDivElement | null>(null)
   const reputationHeaderRef = useRef<HTMLDivElement | null>(null)
 
@@ -171,22 +172,52 @@ export default function SearchSection({ showReputationForm, setShowReputationFor
   }
 
   const handleSearch = () => {
-    setIsLoading(true)
-    
-    // 실제로는 Supabase 쿼리 - 지번으로 검색
+    setIsLoading(true);
     setTimeout(() => {
-      const found = Object.keys(sampleData).find(key => 
-        key.includes(searchQuery.trim())
-      )
-      
-      if (found) {
-        setReport(sampleData[found])
+      const trimmed = searchQuery.trim();
+      // 사용자가 설문을 제출한 주소라면 실제 리포트만 보여줌 (예시 데이터 무시)
+      if (trimmed && submittedAddresses[trimmed]) {
+        // 실제 리포트(평가/설문) 데이터 fetch 또는 상태로 대체 필요
+        // 여기서는 샘플 구조상 빈 리포트로 처리
+        setReport({
+          address: trimmed,
+          landlordName: '',
+          rating: 0,
+          totalReviews: 0,
+          positiveTraits: [],
+          negativeTraits: [],
+          recommendations: 0,
+          warnings: 0,
+          evaluation: undefined,
+          userNotes: '',
+          reviews: [],
+        });
       } else {
-        setReport(null)
+        // 설문이 없는 주소는 sampleData 예시를 보여줌
+        const found = Object.keys(sampleData).find(key => key.includes(trimmed));
+        if (found) {
+          setReport(sampleData[found]);
+        } else if (trimmed) {
+          setReport({
+            address: trimmed,
+            landlordName: '',
+            rating: 0,
+            totalReviews: 0,
+            positiveTraits: [],
+            negativeTraits: [],
+            recommendations: 0,
+            warnings: 0,
+            evaluation: undefined,
+            userNotes: '',
+            reviews: [],
+          });
+        } else {
+          setReport(null);
+        }
       }
-      setIsLoading(false)
-    }, 800)
-  }
+      setIsLoading(false);
+    }, 800);
+  };
 
   const handleOpenReputationForm = () => {
     setReport(null)
@@ -226,7 +257,6 @@ export default function SearchSection({ showReputationForm, setShowReputationFor
     // 주소 선택 시 해당 주소로 검색 및 평판 작성
     const handleAddressSelect = (address: string) => {
       setSearchQuery(address)
-      // 주소가 sampleData에 있으면 해당 데이터로, 없으면 빈 평판 데이터로
       if (sampleData[address]) {
         setReport(sampleData[address])
       } else {
@@ -245,18 +275,23 @@ export default function SearchSection({ showReputationForm, setShowReputationFor
         })
       }
     }
+
+    // 뒤로가기 시 탭 네비게이션까지 자동 스크롤
+    const handleBackWithScroll = () => {
+      setShowReputationForm(false)
+      setTimeout(() => {
+        const tabs = document.querySelector('[data-tabnav]');
+        if (tabs) {
+          const top = (tabs as HTMLElement).getBoundingClientRect().top + window.scrollY;
+          window.scrollTo({ top: Math.max(0, top - 120), behavior: 'smooth' });
+        }
+      }, 10);
+    }
     return (
       <div className="min-h-[70vh] flex items-center justify-center">
         <div ref={formContainerRef} className="w-full max-w-2xl space-y-4">
           <div ref={reputationHeaderRef} className="flex items-center justify-between">
             <h2 className="text-xl font-bold text-navy-900">평판 제보하기</h2>
-            <button
-              type="button"
-              onClick={() => handleResetTestAddress(formReport.address)}
-              className="text-xs font-semibold text-navy-500 hover:text-navy-700 transition"
-            >
-              테스트 초기화
-            </button>
           </div>
           {/* 카카오 주소 검색 UI 삽입 */}
           <div className="card-premium">
@@ -292,11 +327,26 @@ export default function SearchSection({ showReputationForm, setShowReputationFor
             showOnlyForm
             onSubmitSuccess={handleReputationSubmitted}
             isAddressLocked={isAddressLocked}
-            onBack={() => setShowReputationForm(false)}
+            onBack={handleBackWithScroll}
           />
         </div>
       </div>
     )
+  }
+
+  // 홈으로 가기(초기화) 핸들러
+  const handleGoHomeAll = () => {
+    setSelectedAddress(null)
+    setSearchQuery('')
+    setReport(null)
+    // 탭 네비게이션이 상단에 오도록 스크롤
+    setTimeout(() => {
+      const tabs = document.querySelector('[data-tabnav]');
+      if (tabs) {
+        const top = (tabs as HTMLElement).getBoundingClientRect().top + window.scrollY;
+        window.scrollTo({ top: Math.max(0, top - 120), behavior: 'smooth' });
+      }
+    }, 10);
   }
 
   return (
@@ -310,47 +360,66 @@ export default function SearchSection({ showReputationForm, setShowReputationFor
           부동산 평판 조회
         </h3>
         <p className="text-sm text-navy-600 mb-5">
-          주소 한 줄로 임대인 평판과 리뷰를 확인하세요.
+          카카오 주소 검색을 통해 임대인 평판과 리뷰를 확인하세요.
         </p>
-        <div className="flex gap-3">
-          <label htmlFor="address-search" className="sr-only">주소 검색</label>
-          <input
-            id="address-search"
-            type="text"
-            placeholder="예: 역삼동 123-45"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-            className="input-field flex-1"
-          />
-          <button 
-            onClick={handleSearch}
-            disabled={isLoading}
-            className="btn btn-primary whitespace-nowrap"
-          >
-            <FaSearch className="inline mr-2" />
-            {isLoading ? '검색 중...' : '검색'}
-          </button>
-        </div>
-        <p className="text-sm text-navy-500 mt-3 flex items-center">
-          <span className="mr-2">💡</span>
-          동/지번까지 입력해 주세요 (예: 역삼동 123-45)
-        </p>
+        {!selectedAddress ? (
+          <>
+            <KakaoAddressSearch
+              onSelect={(address) => {
+                setSearchQuery(address);
+                setSelectedAddress(address);
+                if (sampleData[address]) {
+                  setReport(sampleData[address]);
+                } else {
+                  // sampleData 중 첫 번째 예시를 보여줌
+                  const firstSample = sampleData[Object.keys(sampleData)[0]];
+                  setReport(firstSample);
+                }
+              }}
+              placeholder="예: 역삼동 123-45"
+              buttonLabel="검색"
+            />
+            {searchQuery && report && (
+              <p className="text-xs text-emerald-600 mt-3">
+                주소가 확인되었습니다.
+              </p>
+            )}
+            <p className="text-sm text-navy-500 mt-3 flex items-center">
+              <span className="mr-2">💡</span>
+              도로명/지번 주소를 검색 후 결과를 선택해 주세요.
+            </p>
+          </>
+        ) : (
+          <div className="flex items-center gap-2 mt-2">
+            <FaMapMarkerAlt className="text-accent-dark" />
+            <span className="font-semibold text-navy-900">{selectedAddress}</span>
+            <button
+              className="ml-2 text-xs text-navy-500 underline hover:text-accent"
+              onClick={() => {
+                setSelectedAddress(null)
+                setSearchQuery('')
+                setReport(null)
+              }}
+            >
+              주소 변경
+            </button>
+          </div>
+        )}
       </div>
 
       {/* 검색 결과 */}
-      {report && (
-        <>
-          <div>
-            <LandlordReportComponent
-              report={report}
-              overrideAverageEvaluation={resultOverrides[report.address]?.averageEvaluation ?? null}
-              overrideTopKeywords={resultOverrides[report.address]?.topKeywords ?? []}
-              onWriteReputation={handleOpenReputationForm}
-              onGoHome={handleGoHome}
-            />
-          </div>
-        </>
+
+      {/* 주소가 선택되면 항상 설문 결과(평판 리포트) 컴포넌트 노출 */}
+      {selectedAddress && report && (
+        <div>
+          <LandlordReportComponent
+            report={report}
+            overrideAverageEvaluation={resultOverrides[report.address]?.averageEvaluation ?? null}
+            overrideTopKeywords={resultOverrides[report.address]?.topKeywords ?? []}
+            onWriteReputation={handleOpenReputationForm}
+            onGoHome={handleGoHomeAll}
+          />
+        </div>
       )}
 
       {!report && !isLoading && searchQuery && (

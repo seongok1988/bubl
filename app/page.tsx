@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Header from "../components/Header";
 import { FaSearch, FaComments, FaPhone, FaBuilding, FaShieldAlt } from "react-icons/fa";
 import SearchSection from "@/components/SearchSection";
 import CommunitySection from "@/components/CommunitySection";
@@ -9,11 +10,12 @@ import LoginModal from "@/components/LoginModal";
 import AuthSection from "@/components/AuthSection";
 
 export default function Home() {
-  const [activeTab, setActiveTab] = useState<'search' | 'community' | 'consult'>('search')
-  const [showReputationForm, setShowReputationForm] = useState(false)
-  const [isLoginOpen, setIsLoginOpen] = useState(false)
-  const contentRef = useRef<HTMLDivElement | null>(null)
-  const tabsRef = useRef<HTMLElement | null>(null)
+  const [activeTab, setActiveTab] = useState<'search' | 'community' | 'consult'>('search');
+  const [showReputationForm, setShowReputationForm] = useState(false);
+  const [isLoginOpen, setIsLoginOpen] = useState(false);
+  const [searchResetKey, setSearchResetKey] = useState(0);
+  const contentRef = useRef<HTMLDivElement | null>(null);
+  const tabsRef = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
     if (activeTab === 'community') {
@@ -22,37 +24,31 @@ export default function Home() {
     if (activeTab === 'consult') {
       contentRef.current?.scrollIntoView({ behavior: 'auto', block: 'start' })
     }
-    }, [activeTab])
+  }, [activeTab]);
+
   const handleLogoClick = () => {
-    window.location.href = '/'
-  }
+    setActiveTab('search');
+    setShowReputationForm(false);
+    setSearchResetKey(prev => prev + 1);
+    setTimeout(() => {
+      if (tabsRef.current) {
+        const top = tabsRef.current.getBoundingClientRect().top + window.scrollY;
+        window.scrollTo({ top: Math.max(0, top - 120), behavior: 'smooth' });
+      }
+    }, 10);
+  };
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-primary-50 via-white to-navy-50">
-      {/* 헤더 */}
-      <header className="bg-white/80 backdrop-blur-md shadow-sm sticky top-0 z-50 border-b border-gray-100">
-        <div className="container mx-auto px-4 py-5">
-          <div className="flex items-center justify-between">
-            <button
-              onClick={handleLogoClick}
-              className="flex items-center space-x-3 hover:opacity-80 transition cursor-pointer"
-            >
-              <div className="w-10 h-10 bg-gradient-to-br from-accent to-accent-dark rounded-xl flex items-center justify-center">
-                <FaBuilding className="text-white text-xl" />
-              </div>
-              <h1 className="text-3xl font-bold text-navy-900" style={{ fontFamily: 'Unbounded, sans-serif' }}>
-                부블
-              </h1>
-            </button>
-            <button
-              onClick={() => setIsLoginOpen(true)}
-              className="px-6 py-2 bg-gradient-to-r from-accent to-accent-dark text-white font-semibold rounded-lg hover:shadow-lg transition transform hover:scale-105 whitespace-nowrap"
-            >
-              로그인
-            </button>
-          </div>
-        </div>
-      </header>
+      <Header onLogoClick={handleLogoClick} />
+      <div className="container mx-auto px-4 py-5 flex justify-end">
+        <button
+          onClick={() => setIsLoginOpen(true)}
+          className="px-6 py-2 bg-gradient-to-r from-accent to-accent-dark text-white font-semibold rounded-lg hover:shadow-lg transition transform hover:scale-105 whitespace-nowrap"
+        >
+          로그인
+        </button>
+      </div>
 
       {/* 히어로 섹션 */}
       {activeTab !== 'community' && (
@@ -130,7 +126,7 @@ export default function Home() {
         ref={tabsRef}
         className={`container mx-auto px-4 ${activeTab === 'community' ? 'mt-8 mb-12' : 'mb-10'}`}
       >
-        <div className="flex justify-center space-x-3">
+        <div className="flex justify-center space-x-3" data-tabnav>
           <button
             onClick={() => {
               setActiveTab('search')
@@ -174,6 +170,7 @@ export default function Home() {
       <section ref={contentRef} className="container mx-auto px-4 pb-16">
         {activeTab === 'search' && (
           <SearchSection
+            key={searchResetKey}
             showReputationForm={showReputationForm}
             setShowReputationForm={setShowReputationForm}
           />

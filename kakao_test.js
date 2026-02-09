@@ -16,9 +16,7 @@ const req = https.request(options, (res) => {
     data += chunk;
   });
   res.on('end', () => {
-    console.log('Status:', res.statusCode);
-    console.log('Headers:', res.headers);
-    console.log('Body:', data);
+    // ...existing code...
   });
 });
 

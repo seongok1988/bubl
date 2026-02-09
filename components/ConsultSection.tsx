@@ -30,7 +30,7 @@ export default function ConsultSection() {
     }
 
     // 실제로는 Supabase에 저장하거나 이메일 전송
-    console.log('상담 신청:', form)
+    // ...existing code...
     
     setIsSubmitted(true)
     setTimeout(() => {

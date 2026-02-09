@@ -1,6 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 
-const KAKAO_REST_API_KEY = '306ada6405de7dfb3fa6a24e1397885e'
+const KAKAO_REST_API_KEY = process.env.NEXT_PUBLIC_KAKAO_REST_API_KEY
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const { query } = req.query

@@ -1051,8 +1051,8 @@ export default function CommunitySection() {
                 {(commentsByPost[post.id] || []).length > 0 ? (
                   [...(commentsByPost[post.id] || [])]
                     .sort((a, b) => {
-                      const aTime = a.createdAt ?? Date.parse(a.timestamp) || 0
-                      const bTime = b.createdAt ?? Date.parse(b.timestamp) || 0
+                      const aTime = (a.createdAt ?? Date.parse(a.timestamp)) || 0
+                      const bTime = (b.createdAt ?? Date.parse(b.timestamp)) || 0
                       return bTime - aTime
                     })
                     .map((comment) => {

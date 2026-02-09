@@ -1197,8 +1197,8 @@ export default function CommunitySection() {
                                   <div className="mt-3 space-y-2 border border-accent/20 bg-accent/5 rounded-lg px-4 py-3">
                                     {[...(comment.replies || [])]
                                       .sort((a, b) => {
-                                        const aTime = a.createdAt ?? Date.parse(a.timestamp) || 0
-                                        const bTime = b.createdAt ?? Date.parse(b.timestamp) || 0
+                                        const aTime = (a.createdAt ?? Date.parse(a.timestamp)) || 0
+                                        const bTime = (b.createdAt ?? Date.parse(b.timestamp)) || 0
                                         return bTime - aTime
                                       })
                                       .map((reply) => {

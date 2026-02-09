@@ -1226,16 +1226,7 @@ export default function LandlordReportComponent({
         </div>
       )}
 
-      {onWriteReputation && !showInlineForm && (
-        <div className="flex flex-col items-center mt-8">
-          <button
-            className="w-full bg-gradient-to-r from-accent to-accent-dark hover:shadow-lg text-white font-bold py-3 px-4 rounded-xl transition"
-            onClick={onWriteReputation}
-          >
-            평판 제보하기
-          </button>
-        </div>
-      )}
+      {/* 평판 제보하기 버튼 제거됨 */}
 
       {showInlineForm && (
         <div className="mt-6">

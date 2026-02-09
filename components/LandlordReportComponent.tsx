@@ -78,7 +78,7 @@ interface KeywordSelection {
 }
 
 interface LandlordReportProps {
-  report: LandlordReport;
+  report: LandlordReport | null;
   showOnlyForm?: boolean;
   onWriteReputation?: () => void;
   showInlineForm?: boolean;

@@ -499,8 +499,14 @@ export default function LandlordReportComponent({
         topKeywords: nextTopKeywords,
       });
       alert('평판이 Supabase DB에 저장되었습니다!');
-    } catch (error: any) {
-      alert('Supabase 저장 실패: ' + (error?.message || error));
+    } catch (error) {
+      let msg = '';
+      if (error && typeof error === 'object' && 'message' in error) {
+        msg = (error as any).message;
+      } else {
+        msg = String(error);
+      }
+      alert('Supabase 저장 실패: ' + msg);
     }
   }
 

@@ -110,7 +110,7 @@ export default function LandlordReportComponent({
     maintenanceCooperation: 0,
   })
   const [newReview, setNewReview] = useState('')
-  const [reviews, setReviews] = useState<Review[]>(report.reviews || [])
+  const [reviews, setReviews] = useState<Review[]>(report ? report.reviews || [] : [])
   const [reviewVotes, setReviewVotes] = useState<Record<string, 'helpful' | 'unhelpful'>>({})
   const [selectedKeywords, setSelectedKeywords] = useState<string[]>([])
   const [myReviewIds, setMyReviewIds] = useState<Record<string, boolean>>({})

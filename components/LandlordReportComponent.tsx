@@ -499,7 +499,7 @@ export default function LandlordReportComponent({
         topKeywords: nextTopKeywords,
       });
       alert('평판이 Supabase DB에 저장되었습니다!');
-    } catch (error) {
+    } catch (error: any) {
       alert('Supabase 저장 실패: ' + (error?.message || error));
     }
   }

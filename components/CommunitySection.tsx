@@ -1312,8 +1312,8 @@ export default function CommunitySection() {
                                                     <div className="mt-2 space-y-2 border border-navy-100 rounded-lg p-3">
                                                       {[...(reply.replies || [])]
                                                         .sort((a, b) => {
-                                                          const aTime = a.createdAt ?? Date.parse(a.timestamp) || 0
-                                                          const bTime = b.createdAt ?? Date.parse(b.timestamp) || 0
+                                                          const aTime = (a.createdAt ?? Date.parse(a.timestamp)) || 0
+                                                          const bTime = (b.createdAt ?? Date.parse(b.timestamp)) || 0
                                                           return bTime - aTime
                                                         })
                                                         .map((childReply) => {

@@ -467,13 +467,15 @@ export default function SearchSection({ showReputationForm, setShowReputationFor
       {/* 주소가 선택되면 항상 설문 결과(평판 리포트) 컴포넌트 노출 */}
       {selectedAddress && report && (
         <div>
-          <LandlordReportComponent
-            report={report}
-            overrideAverageEvaluation={resultOverrides[report.address]?.averageEvaluation ?? null}
-            overrideTopKeywords={resultOverrides[report.address]?.topKeywords ?? []}
-            onWriteReputation={handleOpenReputationForm}
-            onGoHome={handleGoHomeAll}
-          />
+          {report && (
+            <LandlordReportComponent
+              report={report}
+              overrideAverageEvaluation={resultOverrides[report.address]?.averageEvaluation ?? null}
+              overrideTopKeywords={resultOverrides[report.address]?.topKeywords ?? []}
+              onWriteReputation={handleOpenReputationForm}
+              onGoHome={handleGoHomeAll}
+            />
+          )}
         </div>
       )}
 

@@ -103,6 +103,14 @@ export default function LandlordReportComponent({
   onBack,
   onGoHome,
 }: LandlordReportProps) {
+  if (!report) {
+    if (showOnlyForm) return <div />
+    return (
+      <div className="p-4">
+        <p>Loading report…</p>
+      </div>
+    )
+  }
   const LANDLORD_REPORTS_TABLE = 'landlord_reports'
   const [evaluation, setEvaluation] = useState<LandlordEvaluation>({
     negotiationFlexibility: 0,
@@ -174,7 +182,7 @@ export default function LandlordReportComponent({
   const hasEvaluation = !!displayEvaluation
   const landlordNoteTags = selectedKeywords.length
     ? selectedKeywords
-    : [...(report.positiveTraits || []), ...(report.negativeTraits || [])].filter(Boolean)
+    : [...(report?.positiveTraits ?? []), ...(report?.negativeTraits ?? [])].filter(Boolean)
   const displayKeywordTags = overrideTopKeywords?.length
     ? overrideTopKeywords
     : topKeywordTags.length
@@ -234,8 +242,9 @@ export default function LandlordReportComponent({
   }
 
   const loadLocalKeywordSelections = () => {
-    if (report.id) return
+    if (report?.id) return
     try {
+      if (!report?.address) return
       const stored = localStorage.getItem(`keywordSelections:${report.address}`)
       if (!stored) return
       const selections = JSON.parse(stored) as KeywordSelection[]
@@ -248,8 +257,9 @@ export default function LandlordReportComponent({
   }
 
   const persistLocalKeywordSelections = (selections: KeywordSelection[]) => {
-    if (report.id) return
+    if (report?.id) return
     try {
+      if (!report?.address) return
       localStorage.setItem(`keywordSelections:${report.address}`, JSON.stringify(selections))
     } catch (error) {
       console.error('Failed to save local keyword selections:', error)
@@ -257,8 +267,9 @@ export default function LandlordReportComponent({
   }
 
   const loadLocalEvaluationScores = () => {
-    if (report.id) return
+    if (report?.id) return
     try {
+      if (!report?.address) return
       const stored = localStorage.getItem(`evaluationScores:${report.address}`)
       if (!stored) return
       const scores = JSON.parse(stored) as EvaluationScore[]
@@ -271,8 +282,9 @@ export default function LandlordReportComponent({
   }
 
   const persistLocalEvaluationScores = (scores: EvaluationScore[]) => {
-    if (report.id) return
+    if (report?.id) return
     try {
+      if (!report?.address) return
       localStorage.setItem(`evaluationScores:${report.address}`, JSON.stringify(scores))
     } catch (error) {
       console.error('Failed to save local evaluation scores:', error)
@@ -280,8 +292,9 @@ export default function LandlordReportComponent({
   }
 
   const loadLocalReviews = () => {
-    if (report.id) return
+    if (report?.id) return
     try {
+      if (!report?.address) return
       const stored = localStorage.getItem(`reviews:${report.address}`)
       if (!stored) return
       const parsed = JSON.parse(stored) as Review[]
@@ -294,8 +307,9 @@ export default function LandlordReportComponent({
   }
 
   const loadLocalReviewComments = () => {
-    if (report.id) return
+    if (report?.id) return
     try {
+      if (!report?.address) { setLocalCommentsReady(true); return }
       const stored = localStorage.getItem(`reviewComments:${report.address}`)
       if (stored) {
         const parsed = JSON.parse(stored) as Record<string, ReviewComment[]>
@@ -311,8 +325,9 @@ export default function LandlordReportComponent({
   }
 
   const persistLocalReviewComments = (nextComments: Record<string, ReviewComment[]>) => {
-    if (report.id) return
+    if (report?.id) return
     try {
+      if (!report?.address) return
       localStorage.setItem(`reviewComments:${report.address}`, JSON.stringify(nextComments))
     } catch (error) {
       console.error('Failed to save local review comments:', error)
@@ -320,8 +335,9 @@ export default function LandlordReportComponent({
   }
 
   const persistLocalReviews = (nextReviews: Review[]) => {
-    if (report.id) return
+    if (report?.id) return
     try {
+      if (!report?.address) return
       localStorage.setItem(`reviews:${report.address}`, JSON.stringify(nextReviews))
     } catch (error) {
       console.error('Failed to save local reviews:', error)
@@ -329,7 +345,7 @@ export default function LandlordReportComponent({
   }
 
   const loadArrayField = async <T,>(field: 'evaluation_scores' | 'keyword_selections') => {
-    if (!report.id) return [] as T[]
+    if (!report?.id) return [] as T[]
     const { data, error } = await supabase
       .from(LANDLORD_REPORTS_TABLE)
       .select(field)
@@ -346,7 +362,7 @@ export default function LandlordReportComponent({
   }
 
   const appendArrayField = async <T,>(field: 'evaluation_scores' | 'keyword_selections', item: T) => {
-    if (!report.id) return
+    if (!report?.id) return
     const current = await loadArrayField<T>(field)
     const next = [...current, item]
     const { error } = await supabase
@@ -359,29 +375,29 @@ export default function LandlordReportComponent({
   }
 
   const fetchAverageEvaluation = async () => {
-    if (!report.id) return
+    if (!report?.id) return
     const scores = await loadArrayField<EvaluationScore>('evaluation_scores')
     setAverageEvaluation(computeAverageEvaluation(scores))
   }
 
   const fetchTopKeywords = async () => {
-    if (!report.id) return
+    if (!report?.id) return
     const selections = await loadArrayField<KeywordSelection>('keyword_selections')
     setTopKeywordTags(computeTopKeywords(selections))
   }
 
   const persistEvaluationScore = async (score: EvaluationScore) => {
-    if (!report.id) return
+    if (!report?.id) return
     await appendArrayField('evaluation_scores', score)
   }
 
   const persistKeywordSelection = async (selection: KeywordSelection) => {
-    if (!report.id) return
+    if (!report?.id) return
     await appendArrayField('keyword_selections', selection)
   }
 
   useEffect(() => {
-    if (report.id) {
+    if (report?.id) {
       fetchAverageEvaluation()
       fetchTopKeywords()
       return
@@ -390,22 +406,22 @@ export default function LandlordReportComponent({
     loadLocalKeywordSelections()
     loadLocalReviews()
     loadLocalReviewComments()
-  }, [report.id, report.address])
+  }, [report?.id, report?.address])
 
   useEffect(() => {
-    if (report.id || !localCommentsReady) return
+    if (report?.id || !localCommentsReady) return
     persistLocalReviewComments(reviewComments)
-  }, [report.id, report.address, localCommentsReady, reviewComments])
+  }, [report?.id, report?.address, localCommentsReady, reviewComments])
 
   useEffect(() => {
-    if (report.id) return
+    if (report?.id) return
     setAverageEvaluation(computeAverageEvaluation(localEvaluationScores))
-  }, [report.id, localEvaluationScores])
+  }, [report?.id, localEvaluationScores])
 
   useEffect(() => {
-    if (report.id) return
+    if (report?.id) return
     setTopKeywordTags(computeTopKeywords(localKeywordSelections))
-  }, [report.id, localKeywordSelections])
+  }, [report?.id, localKeywordSelections])
 
   const handleAddReview = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -496,6 +512,7 @@ export default function LandlordReportComponent({
         }
       } catch {}
 
+      if (!report?.address) throw new Error('Missing report.address')
       const saved = await createLandlordReport({
         address: report.address,
         evaluation: nextAverage,

@@ -485,8 +485,8 @@ export default function SearchSection({ showReputationForm, setShowReputationFor
           {report && (
             <LandlordReportComponent
               report={report}
-              overrideAverageEvaluation={resultOverrides[report.address]?.averageEvaluation ?? null}
-              overrideTopKeywords={resultOverrides[report.address]?.topKeywords ?? []}
+              overrideAverageEvaluation={resultOverrides[report!.address]?.averageEvaluation ?? null}
+              overrideTopKeywords={resultOverrides[report!.address]?.topKeywords ?? []}
               onWriteReputation={handleOpenReputationForm}
               onGoHome={handleGoHomeAll}
             />

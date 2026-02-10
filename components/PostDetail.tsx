@@ -45,7 +45,7 @@ export default function PostDetail({ postId, currentUserId }: Props) {
 
   const handleUpdate = async () => {
     try {
-      const updated = await updatePost({ post_id: post.id, user_id: currentUserId, title, content });
+      const updated = await updatePost({ post_id: post.id, title, content });
       setPost(updated);
       setEditMode(false);
     } catch (e: any) {
@@ -56,7 +56,7 @@ export default function PostDetail({ postId, currentUserId }: Props) {
   const handleDelete = async () => {
     if (!window.confirm("정말 삭제하시겠습니까?")) return;
     try {
-      await deletePost({ post_id: post.id, user_id: currentUserId });
+      await deletePost({ post_id: post.id });
       window.location.href = "/"; // 삭제 후 목록으로 이동
     } catch (e: any) {
       setError(e.message);

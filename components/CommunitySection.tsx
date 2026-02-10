@@ -1,9 +1,11 @@
 'use client'
 import React, { useState } from 'react'
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
+import { supabase } from '../lib/supabase'
 
 export default function CommunitySection() {
-  const supabase = createClientComponentClient()
+  // use the shared supabase client
+  // (avoids relying on auth-helpers exports that may not be installed)
+  // supabase is imported from ../lib/supabase
   const [title, setTitle] = useState('')
   const [content, setContent] = useState('')
   const [loading, setLoading] = useState(false)

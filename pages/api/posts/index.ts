@@ -10,7 +10,15 @@ const supabaseAdmin = createClient(SUPABASE_URL, SERVICE_KEY)
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === 'GET') {
-    const { communityId } = req.query
+    const rawCommunityId = req.query.communityId
+    const communityId = Array.isArray(rawCommunityId) ? rawCommunityId[0] : rawCommunityId
+
+    if (!communityId) return res.status(400).json({ error: 'Missing communityId query parameter' })
+
+    // Validate UUID format to avoid passing invalid values to Postgres
+    const uuidRegex = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/
+    if (!uuidRegex.test(communityId)) return res.status(400).json({ error: 'Invalid communityId format, expected UUID' })
+
     try {
       const { data, error } = await supabase
         .from('posts')

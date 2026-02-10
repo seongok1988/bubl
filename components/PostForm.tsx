@@ -15,7 +15,7 @@ export default function PostForm({ communityId, userId, onSuccess }: Props) {
 
   const handleSubmit = async () => {
     try {
-      await createPost({ community_id: communityId, user_id: userId, title, content });
+      await createPost({ community_id: communityId, title, content });
       setTitle("");
       setContent("");
       if (onSuccess) onSuccess();

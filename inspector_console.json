@@ -12,7 +12,7 @@
     "type": "console",
     "text": "Failed to load resource: the server responded with a status of 401 ()",
     "location": {
-      "url": "https://vercel.com/api/turborepo/run-summary?deploymentId=dpl_Bvw3JAioF4BURQGkfeWUhwu1wJQx&projectId=prj_ftN3vDP7CB3cYYSneffpoyRTkXS4&refType=github&refValue=master&since=1770652973172&teamId=bubls-projects",
+      "url": "https://vercel.com/api/turborepo/run-summary?deploymentId=dpl_4v7vj2v2eJQDDQZ9JiaB3UdmUr8o&projectId=prj_ftN3vDP7CB3cYYSneffpoyRTkXS4&refType=github&refValue=fix%2Fcommunity-postdetail&since=1770723044873&teamId=bubls-projects",
       "lineNumber": 0,
       "columnNumber": 0
     }
@@ -28,99 +28,18 @@
   },
   {
     "type": "console",
-    "text": "The script resource is behind a redirect, which is disallowed.",
+    "text": "Access to XMLHttpRequest at 'https://m.stripe.com/6' from origin 'https://m.stripe.network' has been blocked by CORS policy: Request header field authorization is not allowed by Access-Control-Allow-Headers in preflight response.",
     "location": {
-      "url": "",
+      "url": "https://m.stripe.network/inner.html#url=https%3A%2F%2Fvercel.com%2Fbubls-projects%2Fbubl%2F4v7vj2v2eJQDDQZ9JiaB3UdmUr8o&title=bubl%20%E2%80%93%20Deployment%20Overview&referrer=&muid=NA&sid=NA&version=6&preview=false&__shared_params__[version]=basil",
       "lineNumber": 0,
       "columnNumber": 0
     }
   },
   {
     "type": "console",
-    "text": "Error: Failed to load Stripe.js\n    at HTMLScriptElement.ej (https://vercel.com/_next/static/chunks/225068ce77e2cc44.js?dpl=dpl_H7ZiL33JbGf6Nq1nZVFjEgXxMtHH:13:483782)",
+    "text": "Failed to load resource: net::ERR_FAILED",
     "location": {
-      "url": "https://vercel.com/_next/static/chunks/225068ce77e2cc44.js?dpl=dpl_H7ZiL33JbGf6Nq1nZVFjEgXxMtHH",
-      "lineNumber": 12,
-      "columnNumber": 484098
-    }
-  },
-  {
-    "type": "console",
-    "text": "Failed to load resource: the server responded with a status of 404 ()",
-    "location": {
-      "url": "https://vercel.com/api/v1/projects/bubl/production-deployment?teamId=bubls-projects",
-      "lineNumber": 0,
-      "columnNumber": 0
-    }
-  },
-  {
-    "type": "console",
-    "text": "Deprecated API for given entry type.",
-    "location": {
-      "url": "https://vercel.com/_next/static/chunks/adfbeae102d0ada1.js?dpl=dpl_H7ZiL33JbGf6Nq1nZVFjEgXxMtHH",
-      "lineNumber": 18,
-      "columnNumber": 0
-    }
-  },
-  {
-    "type": "console",
-    "text": "The resource https://vercel.com/_next/static/media/stripe-light.4919d80b.svg?dpl=dpl_H7ZiL33JbGf6Nq1nZVFjEgXxMtHH&dpl=dpl_H7ZiL33JbGf6Nq1nZVFjEgXxMtHH was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.",
-    "location": {
-      "url": "https://vercel.com/bubls-projects/bubl/Bvw3JAioF4BURQGkfeWUhwu1wJQx",
-      "lineNumber": 0,
-      "columnNumber": 0
-    }
-  },
-  {
-    "type": "console",
-    "text": "The resource https://vercel.com/_next/static/chunks/7d6a6971774810a9.css?dpl=dpl_H7ZiL33JbGf6Nq1nZVFjEgXxMtHH was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.",
-    "location": {
-      "url": "https://vercel.com/bubls-projects/bubl/Bvw3JAioF4BURQGkfeWUhwu1wJQx",
-      "lineNumber": 0,
-      "columnNumber": 0
-    }
-  },
-  {
-    "type": "console",
-    "text": "The resource https://vercel.com/_next/static/chunks/ad643eac1f82b82a.css?dpl=dpl_H7ZiL33JbGf6Nq1nZVFjEgXxMtHH was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.",
-    "location": {
-      "url": "https://vercel.com/bubls-projects/bubl/Bvw3JAioF4BURQGkfeWUhwu1wJQx",
-      "lineNumber": 0,
-      "columnNumber": 0
-    }
-  },
-  {
-    "type": "console",
-    "text": "The resource https://vercel.com/_next/static/chunks/b006603657ee480b.css?dpl=dpl_H7ZiL33JbGf6Nq1nZVFjEgXxMtHH was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.",
-    "location": {
-      "url": "https://vercel.com/bubls-projects/bubl/Bvw3JAioF4BURQGkfeWUhwu1wJQx",
-      "lineNumber": 0,
-      "columnNumber": 0
-    }
-  },
-  {
-    "type": "console",
-    "text": "The resource https://vercel.com/_next/static/media/ebay-dark.c7572b4c.svg?dpl=dpl_H7ZiL33JbGf6Nq1nZVFjEgXxMtHH&dpl=dpl_H7ZiL33JbGf6Nq1nZVFjEgXxMtHH was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.",
-    "location": {
-      "url": "https://vercel.com/bubls-projects/bubl/Bvw3JAioF4BURQGkfeWUhwu1wJQx",
-      "lineNumber": 0,
-      "columnNumber": 0
-    }
-  },
-  {
-    "type": "console",
-    "text": "The resource https://vercel.com/_next/static/media/stripe-dark.aebeabe0.svg?dpl=dpl_H7ZiL33JbGf6Nq1nZVFjEgXxMtHH&dpl=dpl_H7ZiL33JbGf6Nq1nZVFjEgXxMtHH was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.",
-    "location": {
-      "url": "https://vercel.com/bubls-projects/bubl/Bvw3JAioF4BURQGkfeWUhwu1wJQx",
-      "lineNumber": 0,
-      "columnNumber": 0
-    }
-  },
-  {
-    "type": "console",
-    "text": "The resource https://vercel.com/_next/static/media/ebay-light.a2d1b485.svg?dpl=dpl_H7ZiL33JbGf6Nq1nZVFjEgXxMtHH&dpl=dpl_H7ZiL33JbGf6Nq1nZVFjEgXxMtHH was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.",
-    "location": {
-      "url": "https://vercel.com/bubls-projects/bubl/Bvw3JAioF4BURQGkfeWUhwu1wJQx",
+      "url": "https://m.stripe.com/6",
       "lineNumber": 0,
       "columnNumber": 0
     }
@@ -129,7 +48,7 @@
     "type": "console",
     "text": "Failed to load resource: the server responded with a status of 401 ()",
     "location": {
-      "url": "https://vercel.com/api/turborepo/run-summary?deploymentId=dpl_Bvw3JAioF4BURQGkfeWUhwu1wJQx&projectId=prj_ftN3vDP7CB3cYYSneffpoyRTkXS4&refType=github&refValue=master&since=1770652973172&teamId=bubls-projects",
+      "url": "https://vercel.com/api/turborepo/run-summary?deploymentId=dpl_4v7vj2v2eJQDDQZ9JiaB3UdmUr8o&projectId=prj_ftN3vDP7CB3cYYSneffpoyRTkXS4&refType=github&refValue=fix%2Fcommunity-postdetail&since=1770723044873&teamId=bubls-projects",
       "lineNumber": 0,
       "columnNumber": 0
     }
@@ -138,9 +57,9 @@
     "type": "console",
     "text": "Ignored request error CustomFetchError: unauthorized\n    at d (https://vercel.com/_next/static/chunks/d79326e900688d7e.js?dpl=dpl_H7ZiL33JbGf6Nq1nZVFjEgXxMtHH:2:19893)\n    at async https://vercel.com/_next/static/chunks/cf750ab3ff167307.js?dpl=dpl_H7ZiL33JbGf6Nq1nZVFjEgXxMtHH:2:14914",
     "location": {
-      "url": "https://vercel.com/_next/static/chunks/adfbeae102d0ada1.js?dpl=dpl_H7ZiL33JbGf6Nq1nZVFjEgXxMtHH",
-      "lineNumber": 16,
-      "columnNumber": 6661
+      "url": "https://vercel.com/_next/static/chunks/01e3acbe9d17bd6b.js?dpl=dpl_H7ZiL33JbGf6Nq1nZVFjEgXxMtHH",
+      "lineNumber": 21,
+      "columnNumber": 49056
     }
   }
 ]

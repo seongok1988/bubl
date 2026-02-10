@@ -1,4 +1,9 @@
-# dependencies
+node_modules/
+.env
+.env.local
+.next/
+dist/
+npm-debug.log*# dependencies
 /node_modules
 /.pnp
 .pnp.js

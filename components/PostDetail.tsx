@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { fetchPosts, updatePost, deletePost } from "../lib/api/post";
+import { fetchPost, updatePost, deletePost } from "../lib/api/post";
 
 interface Post {
   id: string;
@@ -23,12 +23,20 @@ export default function PostDetail({ postId, currentUserId }: Props) {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    fetchPosts("").then((posts) => {
-      const found = posts.find((p: Post) => p.id === postId);
-      setPost(found);
-      setTitle(found?.title || "");
-      setContent(found?.content || "");
-    });
+    let mounted = true;
+    (async () => {
+      try {
+        const data = await fetchPost(postId);
+        if (!mounted) return;
+        setPost(data);
+        setTitle(data?.title || "");
+        setContent(data?.content || "");
+      } catch (e: any) {
+        setPost(null);
+        setError(e.message || 'Failed to load post');
+      }
+    })();
+    return () => { mounted = false };
   }, [postId]);
 
   if (!post) return <div>로딩 중...</div>;

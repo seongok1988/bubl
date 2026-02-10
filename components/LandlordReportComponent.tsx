@@ -11,6 +11,7 @@ export interface Review {
   nickname: string;
   rating: number;
   content: string;
+  user_id?: string;
   date: string;
   helpful: number;
   unhelpful: number;
@@ -455,6 +456,7 @@ export default function LandlordReportComponent({
       nickname: '익명' + Math.floor(Math.random() * 1000),
       rating: averageRating,
       content: newReview,
+      user_id: undefined,
       date: new Date().toISOString().split('T')[0],
       helpful: 0,
       unhelpful: 0,
@@ -486,12 +488,20 @@ export default function LandlordReportComponent({
     persistLocalKeywordSelections(nextSelections)
     // Supabase에 실제 데이터 저장
     try {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          // attach user_id to newest review if available
+          if (nextReviews.length > 0) nextReviews[0].user_id = user.id
+        }
+      } catch {}
+
       const saved = await createLandlordReport({
         address: report.address,
         evaluation: nextAverage,
         positiveTraits: nextTopKeywords.filter(k => positiveKeywords.has(k)),
         negativeTraits: nextTopKeywords.filter(k => negativeKeywords.has(k)),
-        reviews: [], // 리뷰는 별도 구현 필요
+        reviews: nextReviews,
       });
       onSubmitSuccess?.({
         address: report.address,

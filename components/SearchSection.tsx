@@ -2,6 +2,7 @@
 
 
 import { useEffect, useRef, useState } from 'react'
+import { supabase } from '../lib/supabase'
 import { FaSearch, FaMapMarkerAlt } from 'react-icons/fa'
 import LandlordReportComponent, { LandlordEvaluation, LandlordReport, ReputationSubmitSummary } from './LandlordReportComponent'
 import KakaoAddressSearch from './KakaoAddressSearch'
@@ -58,6 +59,9 @@ export default function SearchSection({ showReputationForm, setShowReputationFor
   const persistSubmittedAddresses = (next: Record<string, boolean>) => {
     try {
       localStorage.setItem('submittedAddresses', JSON.stringify(next));
+      try {
+        window.dispatchEvent(new CustomEvent('bubl:storage-changed', { detail: { key: 'submittedAddresses' } }));
+      } catch {}
     } catch (error) {
       console.error('Failed to save submitted addresses:', error);
     }
@@ -166,10 +170,21 @@ export default function SearchSection({ showReputationForm, setShowReputationFor
 
 
   const handleOpenReputationForm = () => {
-    setReport(null);
-    setSearchQuery('');
-    setSelectedAddress(null);
-    setShowReputationForm(true);
+    (async () => {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) {
+          try { window.dispatchEvent(new CustomEvent('bubl:open-login')); } catch {}
+          return;
+        }
+        setReport(null);
+        setSearchQuery('');
+        setSelectedAddress(null);
+        setShowReputationForm(true);
+      } catch (e) {
+        try { window.dispatchEvent(new CustomEvent('bubl:open-login')); } catch {}
+      }
+    })();
   };
 
 

@@ -14,6 +14,8 @@ export default function Home() {
   const [showReputationForm, setShowReputationForm] = useState(false);
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [searchResetKey, setSearchResetKey] = useState(0);
+  const [reportCount, setReportCount] = useState<number | null>(null);
+  const [postCount, setPostCount] = useState<number | null>(null);
   const contentRef = useRef<HTMLDivElement | null>(null);
   const tabsRef = useRef<HTMLElement | null>(null);
 
@@ -25,6 +27,42 @@ export default function Home() {
       contentRef.current?.scrollIntoView({ behavior: 'auto', block: 'start' })
     }
   }, [activeTab]);
+
+  useEffect(() => {
+    const readCounts = () => {
+      try {
+        const submitted = localStorage.getItem('submittedAddresses');
+        const parsed = submitted ? JSON.parse(submitted) as Record<string, boolean> : {};
+        const reports = parsed && typeof parsed === 'object' ? Object.keys(parsed).length : 0;
+        setReportCount(reports);
+      } catch (e) {
+        setReportCount(null);
+      }
+      try {
+        const posts = localStorage.getItem('communityPosts');
+        const parsedPosts = posts ? JSON.parse(posts) as any[] : null;
+        setPostCount(Array.isArray(parsedPosts) ? parsedPosts.length : null);
+      } catch (e) {
+        setPostCount(null);
+      }
+    };
+
+    readCounts();
+
+    const onStorage = (e: StorageEvent) => {
+      if (e.key === 'submittedAddresses' || e.key === 'communityPosts') readCounts();
+    };
+    const onCustom = () => readCounts();
+    const onOpenLogin = () => setIsLoginOpen(true);
+    window.addEventListener('storage', onStorage);
+    window.addEventListener('bubl:storage-changed', onCustom as EventListener);
+    window.addEventListener('bubl:open-login', onOpenLogin as EventListener);
+    return () => {
+      window.removeEventListener('storage', onStorage);
+      window.removeEventListener('bubl:storage-changed', onCustom as EventListener);
+      window.removeEventListener('bubl:open-login', onOpenLogin as EventListener);
+    };
+  }, []);
 
   const handleLogoClick = () => {
     setActiveTab('search');
@@ -103,15 +141,15 @@ export default function Home() {
             {/* 통계 */}
             <div className="grid grid-cols-3 gap-4 max-w-2xl mx-auto">
               <div className="p-4 bg-white/60 backdrop-blur rounded-xl border border-gray-100">
-                <div className="text-3xl font-bold text-accent-dark mb-1">1,240+</div>
+                <div className="text-3xl font-bold text-accent-dark mb-1">{reportCount !== null ? `${reportCount.toLocaleString()}+` : '1,240+'}</div>
                 <div className="text-sm text-navy-600">누적 리포트</div>
               </div>
               <div className="p-4 bg-white/60 backdrop-blur rounded-xl border border-gray-100">
-                <div className="text-3xl font-bold text-accent-dark mb-1">3,680+</div>
+                <div className="text-3xl font-bold text-accent-dark mb-1">{postCount !== null ? `${postCount.toLocaleString()}+` : '3,680+'}</div>
                 <div className="text-sm text-navy-600">누적 게시글</div>
               </div>
               <div className="p-4 bg-white/60 backdrop-blur rounded-xl border border-gray-100">
-                <div className="text-3xl font-bold text-accent-dark mb-1">850+</div>
+                <div className="text-3xl font-bold text-accent-dark mb-1">500+</div>
                 <div className="text-sm text-navy-600">상담 완료</div>
               </div>
             </div>

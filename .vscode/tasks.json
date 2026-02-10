@@ -1,4 +1,37 @@
 {
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Supabase: Link Project",
+      "type": "shell",
+      "command": "supabase link --project-ref ${input:projectRef}",
+      "problemMatcher": []
+    },
+    {
+      "label": "Supabase: Start",
+      "type": "shell",
+      "command": "supabase start",
+      "isBackground": true,
+      "problemMatcher": []
+    },
+    {
+      "label": "Dev: Next",
+      "type": "shell",
+      "command": "npm run dev",
+      "isBackground": true,
+      "problemMatcher": []
+    }
+  ],
+  "inputs": [
+    {
+      "id": "projectRef",
+      "type": "promptString",
+      "description": "Supabase project ref (from project URL)",
+      "default": "your-project-ref"
+    }
+  ]
+}
+{
 	"version": "2.0.0",
 	"tasks": [
 		{

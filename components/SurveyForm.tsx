@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import { createSurvey, addSurveyQuestion, submitSurveyAnswer } from "../lib/api/survey";
+import { supabase } from "../lib/supabase";
 
 interface Props {
   communityId: string;
@@ -33,8 +34,11 @@ export default function SurveyForm({ communityId, userId }: Props) {
   const handleAnswer = async () => {
     try {
       // 실제로는 survey_questions에서 question_id를 받아야 함(여기선 예시)
+      const { data: { user } } = await supabase.auth.getUser();
+      const uid = user?.id ?? userId
+      if (!uid) throw new Error('Not authenticated')
       for (let i = 0; i < questions.length; i++) {
-        await submitSurveyAnswer({ survey_id: surveyId!, question_id: "question_id_placeholder", user_id: userId, answer: answers[i] });
+        await submitSurveyAnswer({ survey_id: surveyId!, question_id: "question_id_placeholder", user_id: uid, answer: answers[i] });
       }
       setAnswers([]);
     } catch (e: any) {

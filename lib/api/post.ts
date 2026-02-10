@@ -10,6 +10,16 @@ export async function fetchPosts(communityId: string) {
   return res.json()
 }
 
+// 단일 게시글 조회
+export async function fetchPost(postId: string) {
+  const res = await fetch(`/api/posts/${encodeURIComponent(postId)}`)
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}))
+    throw new Error(err.error || 'Failed to fetch post')
+  }
+  return res.json()
+}
+
 // 게시글 작성 (서버 엔드포인트를 통해 생성)
 export async function createPost({ community_id, title, content }: { community_id: string; title: string; content: string }) {
   const { data: sessionData } = await supabase.auth.getSession()

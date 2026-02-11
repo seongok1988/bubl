@@ -27,7 +27,7 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginMod
   const [signupEmail, setSignupEmail] = useState('')
   const [signupPassword, setSignupPassword] = useState('')
   const [signupPasswordConfirm, setSignupPasswordConfirm] = useState('')
-  const [signupName, setSignupName] = useState('')
+  const [signupNickname, setSignupNickname] = useState('')
   const [showSignupPassword, setShowSignupPassword] = useState(false)
   const [showSignupPasswordConfirm, setShowSignupPasswordConfirm] = useState(false)
   
@@ -56,6 +56,7 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginMod
         onLoginSuccess?.()
         onClose()
       }
+      // 로그인 안 된 상태면 아무 동작도 하지 않음
     } catch (err) {
       console.error('Session check failed:', err)
     }
@@ -82,7 +83,7 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginMod
   }
 
   const validatePassword = (password: string): boolean => {
-    return password.length >= 8
+    return password.length >= 6
   }
 
   const sanitizeInput = (input: string): string => {
@@ -106,7 +107,7 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginMod
       return '이미 가입된 이메일입니다'
     }
     if (message.includes('Password should be at least')) {
-      return '비밀번호는 최소 8자 이상이어야 합니다'
+      return '비밀번호는 최소 6자 이상이어야 합니다'
     }
     if (message.includes('Signups not allowed')) {
       return '현재 회원가입이 제한되어 있습니다'
@@ -137,6 +138,7 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginMod
       if (error) throw error
       
     } catch (err: any) {
+      console.error('회원가입 에러:', err);
       setError(getSafeErrorMessage(err))
     } finally {
       setLoading(false)
@@ -199,17 +201,17 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginMod
     e.preventDefault()
     
     // 입력값 검증
-    const name = sanitizeInput(signupName)
+    const nickname = sanitizeInput(signupNickname)
     const email = sanitizeInput(signupEmail)
     const password = signupPassword
     
-    if (!name) {
-      setError('이름을 입력해주세요')
+    if (!nickname) {
+      setError('닉네임을 입력해주세요')
       return
     }
     
-    if (name.length < 2) {
-      setError('이름은 최소 2자 이상이어야 합니다')
+    if (nickname.length < 2) {
+      setError('닉네임은 최소 2자 이상이어야 합니다')
       return
     }
     
@@ -219,22 +221,12 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginMod
     }
     
     if (!validatePassword(password)) {
-      setError('비밀번호는 최소 8자 이상이어야 합니다')
-      return
-    }
-    
-    if (password !== signupPasswordConfirm) {
-      setError('비밀번호가 일치하지 않습니다')
+      setError('비밀번호는 최소 6자 이상이어야 합니다')
       return
     }
 
-    // 비밀번호 강도 검증 (보안 강화)
-    const hasUpperCase = /[A-Z]/.test(password)
-    const hasLowerCase = /[a-z]/.test(password)
-    const hasNumber = /[0-9]/.test(password)
-    
-    if (!hasUpperCase || !hasLowerCase || !hasNumber) {
-      setError('비밀번호는 대문자, 소문자, 숫자를 포함해야 합니다')
+    if (password !== signupPasswordConfirm) {
+      setError('비밀번호가 일치하지 않습니다')
       return
     }
 
@@ -247,9 +239,6 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginMod
         email,
         password,
         options: {
-          data: {
-            name: escapeHtml(name), // XSS 방어
-          },
           emailRedirectTo: `${window.location.origin}/auth/callback`,
         },
       })
@@ -331,7 +320,7 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginMod
     setSignupEmail('')
     setSignupPassword('')
     setSignupPasswordConfirm('')
-    setSignupName('')
+    setSignupNickname('')
     setResetEmail('')
     setError('')
     setSuccess('')
@@ -595,20 +584,20 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginMod
             <form onSubmit={handleSignup} className="space-y-4">
               <div>
                 <label 
-                  htmlFor="signup-name"
+                  htmlFor="signup-nickname"
                   className="block text-sm font-semibold mb-2 text-navy-900"
                 >
-                  이름 <span className="text-red-500">*</span>
+                  닉네임 <span className="text-red-500">*</span>
                 </label>
                 <input
-                  id="signup-name"
+                  id="signup-nickname"
                   type="text"
-                  value={signupName}
-                  onChange={(e) => setSignupName(e.target.value)}
-                  placeholder="홍길동"
+                  value={signupNickname}
+                  onChange={(e) => setSignupNickname(e.target.value)}
+                  placeholder="닉네임을 입력하세요"
                   className="input-field"
                   required
-                  autoComplete="name"
+                  autoComplete="nickname"
                   maxLength={50}
                 />
               </div>
@@ -646,7 +635,7 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginMod
                     type={showSignupPassword ? 'text' : 'password'}
                     value={signupPassword}
                     onChange={(e) => setSignupPassword(e.target.value)}
-                    placeholder="8자 이상, 대소문자+숫자 포함"
+                    placeholder="6자 이상 입력하세요"
                     className="input-field pr-12"
                     required
                     autoComplete="new-password"

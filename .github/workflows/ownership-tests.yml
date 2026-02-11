@@ -1,0 +1,72 @@
+name: Ownership Tests
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+jobs:
+  test-ownership:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+      - name: Start app
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: |
+          # start Next.js in background and capture logs
+          npm start &> app.log &
+          echo $! > .pid
+          # wait for the server to become ready
+          n=0
+          until curl -sSf http://localhost:3000/ > /dev/null 2>&1 || [ $n -ge 30 ]; do
+            n=$((n+1))
+            sleep 2
+          done
+          if [ $n -ge 30 ]; then
+            echo "Server failed to start. Dumping log:";
+            cat app.log; exit 1
+          fi
+
+      - name: Run ownership tests
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: |
+          node ./scripts/test-ownership.js 2>&1 | tee test-ownership.log
+
+      - name: Upload logs
+        uses: actions/upload-artifact@v4
+        with:
+          name: ownership-test-logs
+          path: |
+            app.log
+            test-ownership.log
+
+      - name: Stop server
+        if: always()
+        run: |
+          if [ -f .pid ]; then
+            kill $(cat .pid) || true
+            rm .pid
+          fi

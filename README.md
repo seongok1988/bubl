@@ -161,6 +161,32 @@ NEXT_PUBLIC_SUPABASE_URL=your_project_url
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your_anon_key
 ```
 
+### GitHub Actions (CI)용 Secrets 설정 🔐
+
+이 저장소의 GitHub Actions 워크플로우에서 Supabase에 접근하려면 다음 **Repository secrets**를 추가해야 합니다.
+
+- `NEXT_PUBLIC_SUPABASE_URL` — Supabase 프로젝트 URL
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY` — Supabase 익명(퍼블릭) 키
+- `SUPABASE_SERVICE_ROLE_KEY` — (선택적이지만 권장) 서비스 롤 키 (관리자 작업이나 테스트 데이터 생성에 사용)
+
+설정 방법 (빠른 가이드):
+1. GitHub에서 저장소로 이동 → Settings → Secrets and variables → Actions
+2. **New repository secret** 클릭하고 위 키와 값을 추가
+
+안전 권장 사항:
+- CI에서는 **테스트 전용 Supabase 프로젝트**를 사용하세요(운영 DB에 직접 접근하지 않도록 주의). ⚠️
+- `.env.local`을 절대 커밋하지 마세요. CI에서는 GitHub Secrets로만 값을 주입합니다.
+
+로컬에서 테스트 실행 예시:
+
+PowerShell 예:
+
+```powershell
+$env:NEXT_PUBLIC_SUPABASE_URL="https://your.supabase.co"; $env:NEXT_PUBLIC_SUPABASE_ANON_KEY="your_anon_key"; $env:SUPABASE_SERVICE_ROLE_KEY="your_service_role_key"; node ./scripts/test-ownership.js
+```
+
+CI가 Secrets을 사용해 정상 동작하는지 확인하려면 PR을 열어 워크플로우가 실행되는 것을 확인하세요. (실패하면 `ownership-test-logs` artifact에 로그가 업로드됩니다.)
+
 ## ✅ 운영 체크리스트
 
 - `npm run lint`로 코드 검사 통과 확인

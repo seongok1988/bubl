@@ -39,7 +39,20 @@ curl -H "apikey: $NEXT_PUBLIC_SUPABASE_ANON_KEY" \
 보안
 
 - `SUPABASE_SERVICE_ROLE_KEY`와 같은 서버 전용 키는 Vercel/CI secrets에만 저장하세요.
-- 로컬 `.env.local`은 절대 저장소에 커밋하지 마세요.
+- 로컬 `.env.local`은 절대 저장소에 커밋하지 마세요。
+
+Debug 엔드포인트 (개발 전용)
+
+- 프로젝트에는 일부 개발/디버그용 서버 엔드포인트(`supabase-admin-*`, `supabase-insert-test` 등)가 존재했습니다. 이러한 엔드포인트는 **기본적으로 비활성화(404)** 되어 있으며, 프로덕션에 절대 활성화하면 안 됩니다.
+- 필요 시 로컬에서 임시로 활성화하려면 `.env.local`에 다음 값을 설정하세요:
+
+```env
+# 활성화하려면 true로 설정 (개발용에만 사용)
+ENABLE_DEBUG_ENDPOINTS=true
+```
+
+- 관리자 전용 엔드포인트(예: DB 초기화)는 실행에 `SUPABASE_SERVICE_ROLE_KEY`가 필요하도록 보호되어 있습니다. 서비스 역할 키는 절대 클라이언트에 노출하지 마세요.
+- 변경 사항을 PR로 제출하기 전에 모든 디버그 엔드포인트가 비활성화되어 있는지(또는 주석 처리되어 있는지) 확인하세요.
 
 문제 발생 시
 

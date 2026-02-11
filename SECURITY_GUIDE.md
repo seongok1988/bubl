@@ -34,6 +34,10 @@ CREATE POLICY "Delete own posts" ON posts
 3) Admin actions & service role usage
 - For moderation tasks (hide/unhide, delete, escalate), create server-only admin API endpoints under `pages/api/admin/*` that use the Supabase service role key.
 - Never expose the service role key to the client.
+- If you add development-only debug endpoints (for testing), protect them behind both an environment flag and the service role key. Example:
+  - `ENABLE_DEBUG_ENDPOINTS=true` (local only)
+  - `SUPABASE_SERVICE_ROLE_KEY` present on the server
+  - Implement endpoints to return 404 unless both conditions are met.
 
 Example admin handler (simplified):
 ```ts
@@ -51,7 +55,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   return res.status(200).json({ ok: true })
 }
 ```
-
 4) Input validation & XSS prevention
 - Store plain text where possible. If rich text is required, sanitize on the server before storing or rendering.
 - Validate length limits and allowed characters in `createPost` / `createComment` helpers in `lib/api/*` and also in PL/pgSQL constraints if desired.

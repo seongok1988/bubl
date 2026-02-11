@@ -1,0 +1,65 @@
+[
+  {
+    "type": "console",
+    "text": "%c\n▲\n\n    ________   _ __ _          ____           __\n   /  _/ __/  (_) /( )_____   / __/___ ______/ /_\n   / // /_   / / __/// ___/  / /_/ __ `/ ___/ __/\n _/ // __/  / / /_  (__  )  / __/ /_/ (__  ) /_\n/___/_/    /_/\\__/ /____/  /_/  \\__,_/____/\\__/\n    _ __ _                         _    __                    __\n   (_) /( )_____   ____  ____     | |  / /__  _____________  / /\n  / / __/// ___/  / __ \\/ __ \\    | | / / _ \\/ ___/ ___/ _ \\/ /\n / / /_  (__  )  / /_/ / / / /    | |/ /  __/ /  / /__/  __/ /\n/_/\\__/ /____/   \\____/_/ /_/     |___/\\___/_/   \\___/\\___/_/\n  \n\nHello!\n\n- Open Source https://vercel.com/oss\n- Careers https://vercel.com/careers\n- Status https://vercel-status.com\n\n font-family: \"Geist Mono\", monospace; white-space: pre; line-height: 1;",
+    "location": {
+      "url": "https://vercel.com/_next/static/chunks/83a595c91b75a0c5.js?dpl=dpl_H7ZiL33JbGf6Nq1nZVFjEgXxMtHH",
+      "lineNumber": 72,
+      "columnNumber": 43
+    }
+  },
+  {
+    "type": "console",
+    "text": "Failed to load resource: the server responded with a status of 401 ()",
+    "location": {
+      "url": "https://vercel.com/api/turborepo/run-summary?deploymentId=dpl_4v7vj2v2eJQDDQZ9JiaB3UdmUr8o&projectId=prj_ftN3vDP7CB3cYYSneffpoyRTkXS4&refType=github&refValue=fix%2Fcommunity-postdetail&since=1770723044873&teamId=bubls-projects",
+      "lineNumber": 0,
+      "columnNumber": 0
+    }
+  },
+  {
+    "type": "console",
+    "text": "Ignored request error CustomFetchError: unauthorized\n    at d (https://vercel.com/_next/static/chunks/d79326e900688d7e.js?dpl=dpl_H7ZiL33JbGf6Nq1nZVFjEgXxMtHH:2:19893)\n    at async https://vercel.com/_next/static/chunks/cf750ab3ff167307.js?dpl=dpl_H7ZiL33JbGf6Nq1nZVFjEgXxMtHH:2:14914",
+    "location": {
+      "url": "https://vercel.com/_next/static/chunks/01e3acbe9d17bd6b.js?dpl=dpl_H7ZiL33JbGf6Nq1nZVFjEgXxMtHH",
+      "lineNumber": 21,
+      "columnNumber": 49056
+    }
+  },
+  {
+    "type": "console",
+    "text": "Access to XMLHttpRequest at 'https://m.stripe.com/6' from origin 'https://m.stripe.network' has been blocked by CORS policy: Request header field authorization is not allowed by Access-Control-Allow-Headers in preflight response.",
+    "location": {
+      "url": "https://m.stripe.network/inner.html#url=https%3A%2F%2Fvercel.com%2Fbubls-projects%2Fbubl%2F4v7vj2v2eJQDDQZ9JiaB3UdmUr8o&title=bubl%20%E2%80%93%20Deployment%20Overview&referrer=&muid=NA&sid=NA&version=6&preview=false&__shared_params__[version]=basil",
+      "lineNumber": 0,
+      "columnNumber": 0
+    }
+  },
+  {
+    "type": "console",
+    "text": "Failed to load resource: net::ERR_FAILED",
+    "location": {
+      "url": "https://m.stripe.com/6",
+      "lineNumber": 0,
+      "columnNumber": 0
+    }
+  },
+  {
+    "type": "console",
+    "text": "Failed to load resource: the server responded with a status of 401 ()",
+    "location": {
+      "url": "https://vercel.com/api/turborepo/run-summary?deploymentId=dpl_4v7vj2v2eJQDDQZ9JiaB3UdmUr8o&projectId=prj_ftN3vDP7CB3cYYSneffpoyRTkXS4&refType=github&refValue=fix%2Fcommunity-postdetail&since=1770723044873&teamId=bubls-projects",
+      "lineNumber": 0,
+      "columnNumber": 0
+    }
+  },
+  {
+    "type": "console",
+    "text": "Ignored request error CustomFetchError: unauthorized\n    at d (https://vercel.com/_next/static/chunks/d79326e900688d7e.js?dpl=dpl_H7ZiL33JbGf6Nq1nZVFjEgXxMtHH:2:19893)\n    at async https://vercel.com/_next/static/chunks/cf750ab3ff167307.js?dpl=dpl_H7ZiL33JbGf6Nq1nZVFjEgXxMtHH:2:14914",
+    "location": {
+      "url": "https://vercel.com/_next/static/chunks/01e3acbe9d17bd6b.js?dpl=dpl_H7ZiL33JbGf6Nq1nZVFjEgXxMtHH",
+      "lineNumber": 21,
+      "columnNumber": 49056
+    }
+  }
+]

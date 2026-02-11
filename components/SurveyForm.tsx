@@ -15,6 +15,9 @@ export default function SurveyForm({ communityId, userId }: Props) {
   const [error, setError] = useState<string | null>(null);
   const [surveyId, setSurveyId] = useState<string | null>(null);
   const [answers, setAnswers] = useState<string[]>([]);
+  const [myAnswers, setMyAnswers] = useState<any[]>([])
+  const [editingAnswerId, setEditingAnswerId] = useState<string | null>(null)
+  const [editingAnswerText, setEditingAnswerText] = useState('')
 
   const handleCreateSurvey = async () => {
     try {
@@ -31,6 +34,20 @@ export default function SurveyForm({ communityId, userId }: Props) {
     }
   };
 
+  const loadMyAnswers = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      const uid = user?.id ?? userId
+      if (!surveyId || !uid) return
+      const list = await fetchSurveyAnswers(surveyId, uid)
+      setMyAnswers(list || [])
+    } catch (e) {
+      // ignore
+    }
+  }
+
+  useEffect(() => { loadMyAnswers() }, [surveyId])
+
   const handleAnswer = async () => {
     try {
       // 실제로는 survey_questions에서 question_id를 받아야 함(여기선 예시)
@@ -41,10 +58,41 @@ export default function SurveyForm({ communityId, userId }: Props) {
         await submitSurveyAnswer({ survey_id: surveyId!, question_id: "question_id_placeholder", user_id: uid, answer: answers[i] });
       }
       setAnswers([]);
+      await loadMyAnswers()
     } catch (e: any) {
       setError(e.message);
     }
   };
+
+  const startEditAnswer = (ans: any) => {
+    setEditingAnswerId(ans.id)
+    setEditingAnswerText(ans.answer)
+  }
+
+  const saveEditAnswer = async (id: string) => {
+    try {
+      const { data: { session } } = await supabase.auth.getSession()
+      const token = session?.access_token
+      if (!token) throw new Error('로그인되어 있지 않습니다.')
+      const res = await updateSurveyAnswer({ id, answer: editingAnswerText })
+      if (res?.error) throw new Error(res.error)
+      setEditingAnswerId(null)
+      setEditingAnswerText('')
+      await loadMyAnswers()
+    } catch (e: any) { setError(e.message) }
+  }
+
+  const removeAnswer = async (id: string) => {
+    if (!confirm('응답을 삭제하시겠습니까?')) return
+    try {
+      const { data: { session } } = await supabase.auth.getSession()
+      const token = session?.access_token
+      if (!token) throw new Error('로그인되어 있지 않습니다.')
+      const res = await deleteSurveyAnswer({ id })
+      if (res?.error) throw new Error(res.error)
+      await loadMyAnswers()
+    } catch (e: any) { setError(e.message) }
+  }
 
   return (
     <div>
@@ -73,6 +121,35 @@ export default function SurveyForm({ communityId, userId }: Props) {
         </div>
       ))}
       <button onClick={handleAnswer}>응답 제출</button>
+
+      <h4 className="mt-4">내 응답</h4>
+      {myAnswers.length === 0 ? (
+        <div>응답이 없습니다.</div>
+      ) : (
+        <div className="space-y-2">
+          {myAnswers.map((a) => (
+            <div key={a.id} className="p-2 border rounded">
+              {editingAnswerId === a.id ? (
+                <div>
+                  <input value={editingAnswerText} onChange={e => setEditingAnswerText(e.target.value)} />
+                  <button onClick={() => saveEditAnswer(a.id)}>저장</button>
+                  <button onClick={() => { setEditingAnswerId(null); setEditingAnswerText('') }}>취소</button>
+                </div>
+              ) : (
+                <div>
+                  <div>{a.answer}</div>
+                  <div className="mt-1 text-xs text-navy-500">{new Date(a.created_at).toLocaleString()}</div>
+                  <div className="mt-2">
+                    <button onClick={() => startEditAnswer(a)}>수정</button>
+                    <button style={{ marginLeft: 8, color: 'red' }} onClick={() => removeAnswer(a.id)}>삭제</button>
+                  </div>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+
       {error && <div style={{ color: "red" }}>{error}</div>}
     </div>
   );

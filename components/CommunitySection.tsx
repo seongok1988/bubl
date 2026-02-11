@@ -16,6 +16,25 @@ export default function CommunitySection() {
     const [commentOpen, setCommentOpen] = useState<{ [postId: string]: boolean }>({})
     const [commentInput, setCommentInput] = useState<{ [postId: string]: string }>({})
     const [comments, setComments] = useState<{ [postId: string]: string[] }>({})
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null)
+  const [editingPostId, setEditingPostId] = useState<string | null>(null)
+  const [editingPostTitle, setEditingPostTitle] = useState('')
+  const [editingPostContent, setEditingPostContent] = useState('')
+
+  // load current user id
+  useEffect(() => {
+    let mounted = true
+    ;(async () => {
+      try {
+        const { data: { user } } = await supabase.auth.getUser()
+        if (!mounted) return
+        setCurrentUserId(user?.id ?? null)
+      } catch (e) {
+        // ignore
+      }
+    })()
+    return () => { mounted = false }
+  }, [])
   // 댓글 버튼 클릭 시 입력창 토글
   const handleToggleComment = (postId: string) => {
     setCommentOpen(prev => ({ ...prev, [postId]: !prev[postId] }))
@@ -156,8 +175,33 @@ export default function CommunitySection() {
                 <span className="text-xs font-semibold text-accent-dark bg-accent/10 px-3 py-1 rounded-full">{post.category || '기타'}</span>
                 <span className="text-xs text-navy-400">{new Date(post.created_at).toLocaleString()}</span>
               </div>
-              <h5 className="text-lg font-bold text-navy-900 mb-2 group-hover:text-accent-dark transition">{post.title}</h5>
-              <p className="text-navy-700 mb-4 line-clamp-3">{post.content}</p>
+              {editingPostId === post.id ? (
+                <div className="mb-4">
+                  <input className="w-full p-2 border rounded mb-2" value={editingPostTitle} onChange={e => setEditingPostTitle(e.target.value)} />
+                  <textarea className="w-full p-2 border rounded mb-2" rows={4} value={editingPostContent} onChange={e => setEditingPostContent(e.target.value)} />
+                  <div className="flex gap-2">
+                    <button className="px-3 py-1 bg-accent text-white rounded" onClick={async () => {
+                      try {
+                        const session = await supabase.auth.getSession();
+                        const token = session.data?.session?.access_token
+                        if (!token) throw new Error('로그인이 필요합니다.')
+                        const res = await fetch('/api/posts', { method: 'PUT', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify({ id: post.id, title: editingPostTitle, content: editingPostContent }) })
+                        if (!res.ok) throw new Error(await res.text())
+                        setEditingPostId(null)
+                        fetchPosts()
+                      } catch (e) {
+                        alert('저장 실패: ' + String(e))
+                      }
+                    }}>저장</button>
+                    <button className="px-3 py-1 bg-gray-200 rounded" onClick={() => setEditingPostId(null)}>취소</button>
+                  </div>
+                </div>
+              ) : (
+                <>
+                  <h5 className="text-lg font-bold text-navy-900 mb-2 group-hover:text-accent-dark transition">{post.title}</h5>
+                  <p className="text-navy-700 mb-4 line-clamp-3">{post.content}</p>
+                </>
+              )}
               <div className="flex items-center gap-2">
                 <FaRegSmile className="text-accent" />
                 <span className="text-xs text-navy-500">{post.author || '익명'}</span>
@@ -186,6 +230,30 @@ export default function CommunitySection() {
                 >
                   <FaRegComment className="text-xs" /> 댓글
                 </button>
+
+                {/* 작성자이면 수정/삭제 버튼 표시 */}
+                {(post.author_id || post.author) && String(post.author_id || post.author) === String(currentUserId) && (
+                  <div className="ml-auto flex items-center gap-2">
+                    <button className="text-xs text-navy-700 hover:text-accent" onClick={() => {
+                      setEditingPostId(post.id)
+                      setEditingPostTitle(post.title)
+                      setEditingPostContent(post.content)
+                    }}>수정</button>
+                    <button className="text-xs text-red-500 hover:text-red-700" onClick={async () => {
+                      if (!confirm('이 글을 삭제하시겠습니까?')) return
+                      try {
+                        const session = await supabase.auth.getSession()
+                        const token = session.data?.session?.access_token
+                        if (!token) throw new Error('로그인이 필요합니다.')
+                        const res = await fetch('/api/posts', { method: 'DELETE', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify({ id: post.id }) })
+                        if (!res.ok) throw new Error(await res.text())
+                        fetchPosts()
+                      } catch (e) {
+                        alert('삭제 실패: ' + String(e))
+                      }
+                    }}>삭제</button>
+                  </div>
+                )}
               </div>
               {/* 댓글 입력창 및 목록 */}
               {commentOpen[post.id] && (

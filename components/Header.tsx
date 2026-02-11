@@ -1,6 +1,7 @@
 "use client";
 
-import { FaBuilding } from "react-icons/fa";
+
+import { FaBuilding, FaSignOutAlt } from "react-icons/fa";
 import { useAuthUser } from "@/lib/hooks/useAuthUser";
 import { supabase } from "@/lib/supabase";
 
@@ -22,19 +23,21 @@ export default function Header({ onLogoClick, onLoginClick }: { onLogoClick?: ()
             className="flex items-center space-x-3 hover:opacity-80 transition cursor-pointer bg-transparent border-none p-0"
           >
             <h1
-              className="text-4xl font-extrabold text-navy-900 tracking-widest"
-              style={{ fontFamily: 'Unbounded, sans-serif', letterSpacing: '0.08em' }}
+              className="font-semibold text-navy-900 tracking-widest"
+              style={{ fontSize: '2.75rem', fontFamily: 'Quicksand, Unbounded, Poppins, sans-serif', letterSpacing: '0.08em', fontWeight: 600 }}
             >
-              Bubl
+              bubl
             </h1>
           </button>
           {!loading && (
             user ? (
               <button
                 onClick={handleLogout}
-                className="ml-auto px-6 py-2 bg-gradient-to-r from-gray-400 to-gray-600 text-white font-semibold rounded-lg hover:shadow-lg transition transform hover:scale-105 whitespace-nowrap"
+                className="ml-auto flex items-center gap-2 px-6 py-2 bg-navy-100 text-navy-900 font-semibold rounded-full shadow-md hover:shadow-xl transition-all duration-200 transform hover:scale-105 hover:bg-navy-300 focus:outline-none focus:ring-2 focus:ring-accent-light whitespace-nowrap"
+                title="로그아웃"
               >
-                로그아웃
+                <FaSignOutAlt className="text-lg" />
+                <span className="tracking-wide">로그아웃</span>
               </button>
             ) : (
               <button

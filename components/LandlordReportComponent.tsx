@@ -241,6 +241,8 @@ export default function LandlordReportComponent({
       .map(([keyword]) => keyword)
   }
 
+
+
   const loadLocalKeywordSelections = () => {
     if (report?.id) return
     try {
@@ -504,13 +506,25 @@ export default function LandlordReportComponent({
     persistLocalKeywordSelections(nextSelections)
     // Supabase에 실제 데이터 저장
     try {
+      // require login for Supabase write due to RLS policies
+      let user: any = null
       try {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (user) {
-          // attach user_id to newest review if available
-          if (nextReviews.length > 0) nextReviews[0].user_id = user.id
-        }
-      } catch {}
+        const { data } = await supabase.auth.getUser();
+        user = data?.user ?? null
+      } catch (e) {
+        user = null
+      }
+
+      if (!user) {
+        // Save locally but prompt login for server sync
+        alert('로그인이 필요합니다. 로그인 후 Supabase에 저장됩니다. 로그인 창을 엽니다.')
+        try { window.dispatchEvent(new CustomEvent('bubl:open-login')) } catch {}
+        // Don't attempt to write to Supabase when not authenticated
+        return
+      }
+
+      // attach user_id to newest review if available
+      if (user && nextReviews.length > 0) nextReviews[0].user_id = user.id
 
       if (!report?.address) throw new Error('Missing report.address')
       const saved = await createLandlordReport({
@@ -533,7 +547,51 @@ export default function LandlordReportComponent({
       } else {
         msg = String(error);
       }
-      alert('Supabase 저장 실패: ' + msg);
+
+      // Helpful guidance if RLS blocks the insert
+      if (msg.includes('row-level security') || msg.includes('violates row-level security')) {
+        if (typeof window !== 'undefined') {
+          if (confirm('Supabase의 RLS 정책으로 인해 저장이 거부되었습니다. 로그인 상태인지 확인하거나, 개발환경에서 RLS 정책을 조정하시겠습니까? (자동 진단 실행)')) {
+            fetch('/api/supabase-check')
+              .then((r) => r.json())
+              .then((json) => {
+                if (json.missing) {
+                  alert('테이블이 없습니다. Supabase SQL 에디터에서 다음 SQL을 실행하세요:\n\n' + (json.sql || 'SQL을 찾을 수 없음'))
+                } else {
+                  alert('진단 결과: ' + (json.error || '테이블은 존재하지만 권한(RLS) 문제입니다. Supabase 대시보드의 Policies를 확인하세요.'))
+                }
+              })
+              .catch((e) => alert('진단 실패: ' + String(e)))
+          }
+        }
+        return
+      }
+
+      // If the table is missing, offer to run a diagnostic and show SQL to create it
+      if (msg.includes('landlord_reports') || msg.toLowerCase().includes("테이블 'landlord_reports'")) {
+        if (typeof window !== 'undefined' && confirm('Supabase 테이블이 없거나 접근할 수 없습니다. 자동 진단을 실행해서 해결 방법을 확인하시겠습니까?')) {
+          try {
+            fetch('/api/supabase-check')
+              .then((r) => r.json())
+              .then((json) => {
+                if (json.ok && json.exists) {
+                  alert('테이블이 존재합니다. 다른 권한 문제일 수 있습니다. 콘솔이나 Supabase 대시보드를 확인하세요.')
+                } else if (json.missing) {
+                  alert('테이블이 없습니다. Supabase SQL 에디터에서 다음 SQL을 실행하세요:\n\n' + (json.sql || 'SQL을 찾을 수 없음'))
+                } else {
+                  alert('진단 결과: ' + (json.error || '알 수 없는 오류'))
+                }
+              })
+              .catch((e) => alert('진단 실패: ' + String(e)))
+          } catch (e) {
+            alert('진단 실패: ' + String(e))
+          }
+        } else {
+          alert('Supabase 저장 실패: ' + msg)
+        }
+      } else {
+        alert('Supabase 저장 실패: ' + msg);
+      }
     }
   }
 
@@ -1169,6 +1227,9 @@ export default function LandlordReportComponent({
         >
           평판 등록
         </button>
+
+
+
         {onBack && (
           <button
             type="button"

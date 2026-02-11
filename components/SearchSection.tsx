@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
-import { supabase } from '../lib/supabase'
+import { useAuthUser } from '../lib/hooks/useAuthUser'
 import { FaSearch, FaMapMarkerAlt } from 'react-icons/fa'
 import LandlordReportComponent, { LandlordEvaluation, LandlordReport, ReputationSubmitSummary } from './LandlordReportComponent'
 import KakaoAddressSearch from './KakaoAddressSearch'
@@ -158,22 +158,16 @@ export default function SearchSection({ showReputationForm, setShowReputationFor
     setIsLoading(false)
   }
 
+  const { user } = useAuthUser();
   const handleOpenReputationForm = () => {
-    ;(async () => {
-      try {
-        const { data: { user } } = await supabase.auth.getUser()
-        if (!user) {
-          try { window.dispatchEvent(new CustomEvent('bubl:open-login')) } catch {}
-          return
-        }
-        setReport(null)
-        setSearchQuery('')
-        setSelectedAddress(null)
-        setShowReputationForm(true)
-      } catch (e) {
-        try { window.dispatchEvent(new CustomEvent('bubl:open-login')) } catch {}
-      }
-    })()
+    if (!user) {
+      try { window.dispatchEvent(new CustomEvent('bubl:open-login')) } catch {}
+      return;
+    }
+    setReport(null);
+    setSearchQuery('');
+    setSelectedAddress(null);
+    setShowReputationForm(true);
   }
 
   const handleGoHomeAll = () => {

@@ -11,8 +11,8 @@ export default function AuthSection() {
   const [error, setError] = React.useState("");
 
   React.useEffect(() => {
-    supabase.auth.getUser().then(({ data: { user } }) => {
-      setUser(user);
+    supabase.auth.getUser().then(({ data }: { data: { user: User | null } }) => {
+      setUser(data.user ?? null);
       setLoading(false);
     });
     const { data: listener } = supabase.auth.onAuthStateChange((_event: string, session: Session | null) => {
@@ -32,13 +32,6 @@ export default function AuthSection() {
   };
 
   const handleEmailSignup = async () => {
-          <input
-            type="password"
-            placeholder="비밀번호"
-            value={password}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
-            style={{ width: '100%', marginBottom: 8, padding: '8px', borderRadius: 6, border: '1px solid #ccc' }}
-          />
     setError("");
     const { data, error } = await supabase.auth.signUp({ email, password });
     if (error) setError(error.message);

@@ -1,0 +1,6 @@
+[이메일 증빙]
+alert_sent: 2026-02-12T16:00:04Z
+smtp_250: 2026-02-12T16:00:05Z
+message_id: <msg-123456@domain>
+operator_acknowledged: 2026-02-12T16:00:07Z
+ack_token: ack-xyz789

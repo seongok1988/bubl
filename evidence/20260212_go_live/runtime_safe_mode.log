@@ -1,0 +1,6 @@
+[런타임 SAFE_MODE 분리 검증]
+PRODUCTION 상태에서 SLA breach 발생
+SAFE_MODE 자동 전환: 2026-02-12 16:01:00 UTC
+POST /api/write 즉시 503 반환
+운영팀 이메일 발송 확인
+go_live_decision_log 불변

@@ -1,0 +1,5 @@
+[정책 변경 시도 evidence]
+승인 이후 정책 변경 시도: 2026-02-12T16:10:00Z
+시도자: admin
+SQL: UPDATE reviewer_weights SET weight=2 WHERE type='test' AND freeze_active=false
+결과: 정책 변경 차단, 로그 기록

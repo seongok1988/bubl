@@ -1,0 +1,8 @@
+[legal_hold_immutable_test.log]
+snapshot row count: 1200
+snapshot checksum: 9b2d...
+UPDATE 시도: 권한 거부 로그 캡처
+DROP 시도: 권한 거부 로그 캡처
+변경 불가 증빙 로그 저장
+Git commit hash: 3f2b1c...
+실행자: admin

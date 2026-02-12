@@ -2,5 +2,12 @@
   "css.lint.unknownAtRules": "ignore",
   "css.lint.compatibleVendorPrefixes": "warning",
   "css.lint.vendorPrefix": "warning",
-  "stylelint.enable": false
+  "stylelint.enable": false,
+
+  "files.exclude": {
+    "**/vercel_*.json": true,
+    "**/vercel_*.txt": true,
+    "**/vercel_*.log": true,
+    "**/vercel_inspector.html": true
+  }
 }

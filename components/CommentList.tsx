@@ -21,6 +21,11 @@ export default function CommentList({ postId, currentUserId, postAuthorId }: Pro
   const [input, setInput] = useState("");
   const [isSecret, setIsSecret] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [editId, setEditId] = useState<string | null>(null);
+  const [editContent, setEditContent] = useState("");
+  const [editSecret, setEditSecret] = useState(false);
+  // 실제 API 함수 import 필요
+  // import { updateComment, deleteComment } from '../lib/api/comment';
 
   const load = () => {
     fetchComments(postId, currentUserId, postAuthorId)
@@ -48,8 +53,49 @@ export default function CommentList({ postId, currentUserId, postAuthorId }: Pro
         {comments.map((c) => (
           <li key={c.id}>
             <span>{c.is_secret ? <b>🔒</b> : null}</span>
-            <span>{c.content}</span>
-            <small>{new Date(c.created_at).toLocaleString()}</small>
+            {editId === c.id ? (
+              <>
+                <textarea value={editContent} onChange={e => setEditContent(e.target.value)} />
+                <label>
+                  <input type="checkbox" checked={editSecret} onChange={e => setEditSecret(e.target.checked)} /> 비밀댓글
+                </label>
+                <button onClick={async () => {
+                  try {
+                    // await updateComment({ comment_id: c.id, content: editContent, is_secret: editSecret });
+                    setEditId(null);
+                    setEditContent("");
+                    setEditSecret(false);
+                    load();
+                  } catch (e: any) {
+                    setError(e.message);
+                  }
+                }}>저장</button>
+                <button onClick={() => setEditId(null)}>취소</button>
+              </>
+            ) : (
+              <>
+                <span>{c.content}</span>
+                <small>{new Date(c.created_at).toLocaleString()}</small>
+                {c.user_id === currentUserId && (
+                  <>
+                    <button onClick={() => {
+                      setEditId(c.id);
+                      setEditContent(c.content);
+                      setEditSecret(!!c.is_secret);
+                    }}>수정</button>
+                    <button onClick={async () => {
+                      if (!window.confirm("정말 삭제하시겠습니까?")) return;
+                      try {
+                        // await deleteComment({ comment_id: c.id });
+                        load();
+                      } catch (e: any) {
+                        setError(e.message);
+                      }
+                    }}>삭제</button>
+                  </>
+                )}
+              </>
+            )}
           </li>
         ))}
       </ul>

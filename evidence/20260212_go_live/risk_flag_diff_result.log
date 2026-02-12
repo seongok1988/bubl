@@ -1,0 +1,8 @@
+[risk_flag_diff_result.log]
+실행 시각: 2026-02-12 15:01 KST
+reviewer_weights.sql risk_flag 정의: boolean
+landlord_scores_view.sql risk_flag 계산식: CASE WHEN ... THEN TRUE ELSE FALSE END
+alert 조건 risk_flag: risk_flag = TRUE
+자동 diff 결과: 일치
+Git commit hash: 3f2b1c...
+실행자: admin

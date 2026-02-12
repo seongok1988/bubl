@@ -1,0 +1,6 @@
+[정책 변경 시도 evidence]
+attempted_policy_change: reviewer_weights
+actor_id: admin
+actor_ip: 192.168.1.100
+timestamp_utc: 2026-02-12T16:10:00Z
+result: BLOCKED (freeze_active=true)

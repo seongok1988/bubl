@@ -1,0 +1,6 @@
+[멀티 인스턴스 동기화 검증]
+instance-1 SAFE_MODE 전환: 2026-02-12 16:00:00 UTC
+instance-2 POST /api/write 요청: 2026-02-12 16:00:04 UTC
+응답 코드: 503
+로드밸런서 sticky session 없음
+동기화 지연: 4초

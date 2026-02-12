@@ -1,0 +1,4 @@
+[Redis pub/sub ack 미수신 경고 evidence]
+ack_missing: true
+instance_id: web-03
+alert_email_sent: 2026-02-12T16:00:04Z

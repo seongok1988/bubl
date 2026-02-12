@@ -1,0 +1,5 @@
+[멀티 인스턴스 mode_change_ack 증빙]
+instance_id=web-01 mode_change_ack: 2026-02-12T16:00:01Z
+instance_id=web-02 mode_change_ack: 2026-02-12T16:00:02Z
+mode source: Redis pub/sub
+broadcast 로그 존재

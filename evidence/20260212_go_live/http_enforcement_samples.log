@@ -1,0 +1,16 @@
+[http_enforcement_log 샘플]
+mode_at_request: SAFE_MODE
+endpoint: /api/write
+method: POST
+blocked: true
+response_code: 503
+instance_id: instance-1
+request_timestamp: 2026-02-12 16:00:03 UTC
+
+mode_at_request: SAFE_MODE
+endpoint: /admin/write
+method: POST
+blocked: true
+response_code: 503
+instance_id: instance-2
+request_timestamp: 2026-02-12 16:00:04 UTC

@@ -513,11 +513,17 @@ export default function LandlordReportComponent({
       } catch {}
 
       if (!report?.address) throw new Error('Missing report.address')
+      // Supabase landlord_reports 테이블의 필수값: id, landlord_id, author_id
+      // id는 DB에서 자동 생성, landlord_id/author_id는 임시로 user.id 사용(실서비스에서는 실제 임대인/작성자 id 필요)
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('로그인이 필요합니다.');
       const saved = await createLandlordReport({
         address: report.address,
+        landlord_id: user.id, // 실제 임대인 id로 교체 필요
+        author_id: user.id,
         evaluation: nextAverage,
-        positiveTraits: nextTopKeywords.filter(k => positiveKeywords.has(k)),
-        negativeTraits: nextTopKeywords.filter(k => negativeKeywords.has(k)),
+        positive_traits: nextTopKeywords.filter(k => positiveKeywords.has(k)),
+        negative_traits: nextTopKeywords.filter(k => negativeKeywords.has(k)),
         reviews: nextReviews,
       });
       onSubmitSuccess?.({

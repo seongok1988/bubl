@@ -1,0 +1,10 @@
+[hidden_trace_test.log]
+테스트 데이터 5회 반복
+review_id: 12345
+review 테이블: hidden 변경 기록
+admin_audit_logs: hidden 변경 action 기록
+score 재계산 로그: hidden 반영 기록
+alert_history: hidden 관련 alert 기록
+모든 테이블 동일 review_id 기록 확인
+Git commit hash: 3f2b1c...
+실행자: admin

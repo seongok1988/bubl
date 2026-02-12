@@ -1,0 +1,7 @@
+[Redis pub/sub 증빙]
+publish_success: 2026-02-12T16:00:01Z
+subscriber_count: 2
+instance_ack:
+  - instance_id: web-01, ack: 2026-02-12T16:00:02Z
+  - instance_id: web-02, ack: 2026-02-12T16:00:03Z
+ack_missing: false

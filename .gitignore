@@ -37,3 +37,9 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Vercel deployment logs
+vercel_*.json
+vercel_*.txt
+vercel_*.log
+vercel_inspector.html

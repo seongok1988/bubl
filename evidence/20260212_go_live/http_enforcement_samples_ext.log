@@ -1,0 +1,24 @@
+[http_enforcement_log 강화 샘플]
+mode_at_request: SAFE_MODE
+endpoint: /api/write
+method: POST
+blocked: true
+response_code: 503
+instance_id: web-01
+request_timestamp: 2026-02-12T16:00:03Z
+user_agent: Mozilla/5.0
+client_ip: 192.168.1.10
+request_id: req-abc123
+correlation_id: safe-evt-001
+
+mode_at_request: SAFE_MODE
+endpoint: /admin/write
+method: POST
+blocked: true
+response_code: 503
+instance_id: web-02
+request_timestamp: 2026-02-12T16:00:04Z
+user_agent: Mozilla/5.0
+client_ip: 192.168.1.11
+request_id: req-def456
+correlation_id: safe-evt-001

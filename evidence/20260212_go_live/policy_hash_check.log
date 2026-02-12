@@ -1,0 +1,8 @@
+[policy_hash_check.log]
+실행 시각: 2026-02-12 15:00 KST
+DB 정책 해시: 8a7c... (SHA256)
+문서 해시: 8a7c... (SHA256)
+비교 결과: 일치
+Git commit hash: 3f2b1c...
+실행자: admin
+Level 2 알림: 없음

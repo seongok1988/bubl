@@ -1,0 +1,25 @@
+관리자 대시보드 기본 컬럼:
+- report_id
+- landlord_id
+- reviewer_type
+- is_verified
+- rating
+- status
+- 신고 횟수
+- created_at
+
+필터 기능:
+- reviewer_type별
+- status별
+- 신고 3회 이상
+- tenant+lease_id만 보기
+
+리뷰 상세 화면:
+- 원문 내용
+- 작성자 user_id
+- reviewer_type
+- lease_id
+- IP/device 로그
+- 신고 내역
+- 수정 이력
+- 관리자 액션(approve/reject/hidden/reviewer_type 변경/가중치 조정)

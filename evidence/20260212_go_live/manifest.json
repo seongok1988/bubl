@@ -1,0 +1,23 @@
+{
+  "created_at": "2026-02-12 15:10:00 KST",
+  "db_schema_version": "v1.2.3",
+  "git_commit_hash": "3f2b1c...",
+  "executed_by": "admin",
+  "files": {
+    "policy_db_sync_result.csv": "SHA256_PLACEHOLDER",
+    "governance_report.csv": "SHA256_PLACEHOLDER",
+    "attack_simulation_report.csv": "SHA256_PLACEHOLDER",
+    "mv_refresh_log.txt": "SHA256_PLACEHOLDER",
+    "audit_log_sample.csv": "SHA256_PLACEHOLDER",
+    "snapshot_log.txt": "SHA256_PLACEHOLDER"
+  },
+  "file_count": 6,
+  "row_count_summary": {
+    "policy_db_sync_result.csv": "(row count 자동화)",
+    "governance_report.csv": "(row count 자동화)",
+    "attack_simulation_report.csv": "(row count 자동화)",
+    "mv_refresh_log.txt": "(row count 자동화)",
+    "audit_log_sample.csv": "(row count 자동화)",
+    "snapshot_log.txt": "(row count 자동화)"
+  }
+}

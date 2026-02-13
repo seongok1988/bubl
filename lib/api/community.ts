@@ -1,4 +1,5 @@
-import { supabase } from '../supabase';
+import { supabase } from '@/services/supabase';
+import type { Community } from '@/types/db';
 
 // 커뮤니티 목록 조회
 export async function fetchCommunities() {

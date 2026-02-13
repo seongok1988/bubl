@@ -1,4 +1,5 @@
-import { supabase } from '../supabase';
+import { supabase } from '@/services/supabase';
+import type { Survey, SurveyQuestion, SurveyAnswer } from '@/types/db';
 
 // 설문 목록 조회
 export async function fetchSurveys(communityId: string) {

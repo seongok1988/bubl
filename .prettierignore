@@ -1,0 +1,10 @@
+.next
+node_modules
+archive
+evidence
+logs
+db
+public
+*.sql
+*.md
+*.json

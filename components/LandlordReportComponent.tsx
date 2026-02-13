@@ -1,123 +1,107 @@
-'use client'
+'use client';
 
-import { useEffect, useState } from 'react'
-import { FaStar, FaUser, FaMapMarkerAlt, FaThumbsUp, FaThumbsDown, FaTrash, FaComments } from 'react-icons/fa'
-import GaugeChart from './GaugeChart'
-import { supabase } from '../lib/supabase'
-import { createLandlordReport } from '../lib/api/landlordReport'
+import React, { useState, useEffect } from 'react';
+import { FaStar, FaMapMarkerAlt, FaUser, FaThumbsUp, FaThumbsDown, FaExclamationTriangle } from 'react-icons/fa';
+import { supabase } from '@/services/supabase';
+import { createLandlordReport } from '@/lib/api/landlordReport';
+import { createComment } from '@/lib/api/comment';
+import GaugeChart from './GaugeChart';
+import ReportModal from './ReportModal';
+import type {
+  LandlordReport,
+  LandlordEvaluation,
+  EvaluationScore,
+  KeywordSelection,
+  Review,
+  ReviewComment,
+  ReviewReply,
+  LandlordReportProps,
+  ReputationSubmitSummary,
+} from '@/types/db';
 
-export interface Review {
-  id: string;
-  nickname: string;
-  rating: number;
-  content: string;
-  user_id?: string;
-  date: string;
-  helpful: number;
-  unhelpful: number;
-}
+// Re-export types for consumers that import from this file
+export type {
+  LandlordReport,
+  LandlordEvaluation,
+  EvaluationScore,
+  KeywordSelection,
+  Review,
+  ReviewComment,
+  ReviewReply,
+  LandlordReportProps,
+  ReputationSubmitSummary,
+};
 
-interface ReviewComment {
-  id: string;
-  text: string;
-  author: string;
-  timestamp: string;
-  isSecret: boolean;
-  isMine: boolean;
-  replies?: ReviewReply[];
-}
+const LANDLORD_REPORTS_TABLE = 'landlord_reports';
 
-interface ReviewReply {
-  id: string;
-  text: string;
-  author: string;
-  timestamp: string;
-  isSecret: boolean;
-  isMine: boolean;
-  replies?: ReviewReply[];
-}
+export default function LandlordReportComponent(props: LandlordReportProps) {
+    const [evaluation, setEvaluation] = useState<LandlordEvaluation | null>(null);
+  // 올바른 props 구조 분해
+  const {
+    report,
+    showOnlyForm = false,
+    onWriteReputation,
+    showInlineForm = false,
+    onSubmitSuccess,
+    isAddressLocked = false,
+    overrideAverageEvaluation,
+    overrideTopKeywords,
+    onBack,
+    onGoHome,
+  } = props;
+  const [reviewComments, setReviewComments] = useState<Record<string, ReviewComment[]>>({});
 
-export interface LandlordEvaluation {
-  negotiationFlexibility: number;
-  renewalManners: number;
-  interferenceIndex: number;
-  maintenanceCooperation: number;
-}
+  // 댓글 등록 래퍼 (lib/api/comment의 createComment 사용)
+  const submitComment = async ({ post_id, content, is_secret }: { post_id: string; content: string; is_secret?: boolean }) => {
+    try {
+      const data = await createComment({ post_id, content, is_secret });
+      return { data, error: null };
+    } catch (error) {
+      return { data: null, error };
+    }
+  };
 
-export interface LandlordReport {
-  id?: string;
-  address: string;
-  landlordName: string;
-  rating: number;
-  totalReviews: number;
-  positiveTraits: string[];
-  negativeTraits: string[];
-  recommendations: number;
-  warnings: number;
-  evaluation?: LandlordEvaluation;
-  userNotes?: string;
-  reviews?: Review[];
-}
-
-export interface ReputationSubmitSummary {
-  address: string;
-  averageEvaluation: LandlordEvaluation | null;
-  topKeywords: string[];
-}
-
-interface EvaluationScore {
-  negotiationFlexibility: number;
-  renewalManners: number;
-  interferenceIndex: number;
-  maintenanceCooperation: number;
-  createdAt: string;
-}
-
-interface KeywordSelection {
-  keywords: string[];
-  createdAt: string;
-}
-
-interface LandlordReportProps {
-  report: LandlordReport | null;
-  showOnlyForm?: boolean;
-  onWriteReputation?: () => void;
-  showInlineForm?: boolean;
-  onSubmitSuccess?: (summary: ReputationSubmitSummary) => void;
-  isAddressLocked?: boolean;
-  overrideAverageEvaluation?: LandlordEvaluation | null;
-  overrideTopKeywords?: string[];
-  onBack?: () => void;
-  onGoHome?: () => void;
-}
-
-export default function LandlordReportComponent({
-  report,
-  showOnlyForm = false,
-  onWriteReputation,
-  showInlineForm = false,
-  onSubmitSuccess,
-  isAddressLocked = false,
-  overrideAverageEvaluation,
-  overrideTopKeywords,
-  onBack,
-  onGoHome,
-}: LandlordReportProps) {
-  if (!report) {
-    if (showOnlyForm) return <div />
-    return (
-      <div className="p-4">
-        <p>Loading report…</p>
-      </div>
-    )
-  }
-  const LANDLORD_REPORTS_TABLE = 'landlord_reports'
-  const [evaluation, setEvaluation] = useState<LandlordEvaluation>({
-    negotiationFlexibility: 0,
-    renewalManners: 0,
-    interferenceIndex: 0,
-    maintenanceCooperation: 0,
-  })
+  // 리뷰 댓글 조회 (컴포넌트 내부 전용)
+  const fetchReviewComments = async (postId: string): Promise<Record<string, ReviewComment[]>> => {
+    const { data, error } = await supabase
+      .from('comments')
+      .select('*')
+      .eq('post_id', postId)
+      .order('created_at', { ascending: true });
+    if (error) throw error;
+    const grouped: Record<string, ReviewComment[]> = {};
+    let currentUserId = '';
+    try {
+      const userResp = await supabase.auth.getUser();
+      currentUserId = userResp?.data?.user?.id ?? '';
+    } catch {}
+    (data || []).forEach((comment: any) => {
+      const reviewId: string = String(comment.post_id);
+      const reviewComment: ReviewComment = {
+        id: String(comment.id),
+        text: String(comment.content),
+        author: String(comment.author),
+        timestamp: String(comment.created_at),
+        isSecret: Boolean(comment.is_secret),
+        isMine: comment.user_id ? comment.user_id === currentUserId : false,
+        replies: [],
+      };
+      if (!grouped[reviewId]) grouped[reviewId] = [];
+      grouped[reviewId].push(reviewComment);
+    });
+    return grouped;
+  };
+  const loadReviewComments = async () => {
+    try {
+      if (report && report.id) {
+        const comments = await fetchReviewComments(report.id);
+        setReviewComments(comments);
+      }
+    } catch (e: any) {
+      console.error('댓글 목록 불러오기 실패:', e?.message || e);
+    }
+  };
+    // 함수 바깥의 hook/props 구조 분해/함수 선언 삭제
   const [newReview, setNewReview] = useState('')
   const [reviews, setReviews] = useState<Review[]>(() => (report && report.reviews ? report.reviews : []));
   const [reviewVotes, setReviewVotes] = useState<Record<string, 'helpful' | 'unhelpful'>>({})
@@ -127,7 +111,6 @@ export default function LandlordReportComponent({
   const [editingReviewText, setEditingReviewText] = useState('')
   const [openReviewCommentId, setOpenReviewCommentId] = useState<string | null>(null)
   const [reviewCommentDrafts, setReviewCommentDrafts] = useState<Record<string, string>>({})
-  const [reviewComments, setReviewComments] = useState<Record<string, ReviewComment[]>>({})
   const [reviewCommentSecretDrafts, setReviewCommentSecretDrafts] = useState<Record<string, boolean>>({})
   const [localCommentsReady, setLocalCommentsReady] = useState(false)
   const [editingCommentIds, setEditingCommentIds] = useState<Record<string, string | null>>({})
@@ -142,6 +125,15 @@ export default function LandlordReportComponent({
   const [averageEvaluation, setAverageEvaluation] = useState<LandlordEvaluation | null>(null)
   const [localKeywordSelections, setLocalKeywordSelections] = useState<KeywordSelection[]>([])
   const [topKeywordTags, setTopKeywordTags] = useState<string[]>([])
+  const [reportTargetReviewId, setReportTargetReviewId] = useState<string | null>(null)
+  const [authToken, setAuthToken] = useState<string>('')
+
+  // 인증 토큰 가져오기
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data }) => {
+      setAuthToken(data.session?.access_token ?? '');
+    });
+  }, []);
 
   const keywordOptions = [
     '친절해요',
@@ -438,28 +430,31 @@ export default function LandlordReportComponent({
       return
     }
     if (
-      evaluation.negotiationFlexibility === 0 ||
-      evaluation.renewalManners === 0 ||
-      evaluation.interferenceIndex === 0 ||
-      evaluation.maintenanceCooperation === 0
+      evaluation && (
+        evaluation.negotiationFlexibility === 0 ||
+        evaluation.renewalManners === 0 ||
+        evaluation.interferenceIndex === 0 ||
+        evaluation.maintenanceCooperation === 0
+      )
     ) {
       alert('네고 유연성, 재계약 매너, 간섭 지수, 유지보수 별점을 모두 선택해주세요.')
       return
     }
 
     const averageRating = Math.round(
-      (evaluation.negotiationFlexibility +
-        evaluation.renewalManners +
-        evaluation.interferenceIndex +
-        evaluation.maintenanceCooperation) / 4
+      evaluation
+        ? (evaluation.negotiationFlexibility +
+          evaluation.renewalManners +
+          evaluation.interferenceIndex +
+          evaluation.maintenanceCooperation) / 4
+        : 0
     )
 
     const evaluationScore: EvaluationScore = {
-      negotiationFlexibility: evaluation.negotiationFlexibility,
-      renewalManners: evaluation.renewalManners,
-      interferenceIndex: evaluation.interferenceIndex,
-      maintenanceCooperation: evaluation.maintenanceCooperation,
-      createdAt: new Date().toISOString(),
+      negotiationFlexibility: evaluation ? evaluation.negotiationFlexibility : 0,
+      renewalManners: evaluation ? evaluation.renewalManners : 0,
+      interferenceIndex: evaluation ? evaluation.interferenceIndex : 0,
+      maintenanceCooperation: evaluation ? evaluation.maintenanceCooperation : 0,
     }
 
     const keywordSelection: KeywordSelection = {
@@ -519,12 +514,18 @@ export default function LandlordReportComponent({
       if (!user) throw new Error('로그인이 필요합니다.');
       const saved = await createLandlordReport({
         address: report.address,
-        landlord_id: user.id, // 실제 임대인 id로 교체 필요
+        landlordName: report.landlordName ?? '',
+        rating: report.rating ?? 0,
+        totalReviews: report.totalReviews ?? 0,
+        recommendations: report.recommendations ?? 0,
+        warnings: report.warnings ?? 0,
         author_id: user.id,
-        evaluation: nextAverage,
-        positive_traits: nextTopKeywords.filter(k => positiveKeywords.has(k)),
-        negative_traits: nextTopKeywords.filter(k => negativeKeywords.has(k)),
+        evaluation: nextAverage ?? undefined,
+        positiveTraits: nextTopKeywords.filter(k => positiveKeywords.has(k)),
+        negativeTraits: nextTopKeywords.filter(k => negativeKeywords.has(k)),
         reviews: nextReviews,
+        userNotes: report.userNotes ?? '',
+        id: report.id ?? undefined,
       });
       onSubmitSuccess?.({
         address: report.address,
@@ -636,26 +637,18 @@ export default function LandlordReportComponent({
       alert('댓글을 입력해주세요.')
       return
     }
-
-    const newComment: ReviewComment = {
-      id: `${Date.now()}-${Math.floor(Math.random() * 1000)}`,
-      text,
-      author: `익명${Math.floor(Math.random() * 1000)}`,
-      timestamp: new Date().toLocaleString('ko-KR'),
-      isSecret: !!reviewCommentSecretDrafts[id],
-      isMine: true,
-      replies: [],
-    }
-    setReviewComments((prev) => {
-      const next = {
-        ...prev,
-        [id]: [...(prev[id] || []), newComment],
+    (async () => {
+      try {
+        const { data, error } = await submitComment({ post_id: id, content: text, is_secret: !!reviewCommentSecretDrafts[id] });
+        console.log('insert 결과:', data, error);
+        await loadReviewComments();
+        setReviewCommentDrafts((prev) => ({ ...prev, [id]: '' }));
+        setReviewCommentSecretDrafts((prev) => ({ ...prev, [id]: false }));
+      } catch (e) {
+        console.log('insert 결과:', null, e);
+        alert('댓글 등록 실패: ' + (typeof e === 'object' && e && 'message' in e ? (e as any).message : String(e)));
       }
-      persistLocalReviewComments(next)
-      return next
-    })
-    setReviewCommentDrafts((prev) => ({ ...prev, [id]: '' }))
-    setReviewCommentSecretDrafts((prev) => ({ ...prev, [id]: false }))
+    })();
   }
 
   const handleCancelReviewCommentInput = (id: string) => {
@@ -1063,7 +1056,7 @@ export default function LandlordReportComponent({
             </p>
             <div className="flex gap-1">
               {[1, 2, 3, 4, 5].map((star) => (
-                <button key={star} type="button" onClick={() => setEvaluation((prev) => ({ ...prev, negotiationFlexibility: star }))}>
+                <button key={star} type="button" onClick={() => setEvaluation(prev => prev ? { ...prev, negotiationFlexibility: star } : { negotiationFlexibility: star, renewalManners: 0, interferenceIndex: 0, maintenanceCooperation: 0 })}>
                   <FaStar className={star <= (evaluation?.negotiationFlexibility || 0) ? 'text-yellow-400' : 'text-gray-300'} />
                 </button>
               ))}
@@ -1074,7 +1067,7 @@ export default function LandlordReportComponent({
             <p className="text-xs text-navy-500 mb-1 leading-relaxed break-words">계약 갱신 시 인상 폭, 태도, 재계약 조건 협의의 원만함</p>
             <div className="flex gap-1">
               {[1, 2, 3, 4, 5].map((star) => (
-                <button key={star} type="button" onClick={() => setEvaluation((prev) => ({ ...prev, renewalManners: star }))}>
+                <button key={star} type="button" onClick={() => setEvaluation(prev => prev ? { ...prev, renewalManners: star } : { negotiationFlexibility: 0, renewalManners: star, interferenceIndex: 0, maintenanceCooperation: 0 })}>
                   <FaStar className={star <= (evaluation?.renewalManners || 0) ? 'text-yellow-400' : 'text-gray-300'} />
                 </button>
               ))}
@@ -1085,7 +1078,7 @@ export default function LandlordReportComponent({
             <p className="text-xs text-navy-500 mb-1 leading-relaxed break-words">운영 중 임대인의 방문 빈도, 참견, 간섭 정도</p>
             <div className="flex gap-1">
               {[1, 2, 3, 4, 5].map((star) => (
-                <button key={star} type="button" onClick={() => setEvaluation((prev) => ({ ...prev, interferenceIndex: star }))}>
+                <button key={star} type="button" onClick={() => setEvaluation(prev => prev ? { ...prev, interferenceIndex: star } : { negotiationFlexibility: 0, renewalManners: 0, interferenceIndex: star, maintenanceCooperation: 0 })}>
                   <FaStar className={star <= (evaluation?.interferenceIndex || 0) ? 'text-yellow-400' : 'text-gray-300'} />
                 </button>
               ))}
@@ -1096,7 +1089,7 @@ export default function LandlordReportComponent({
             <p className="text-xs text-navy-500 mb-1 leading-relaxed break-words">하자 수리, 시설 유지보수, 비용 분담 등 임대인의 협조성</p>
             <div className="flex gap-1">
               {[1, 2, 3, 4, 5].map((star) => (
-                <button key={star} type="button" onClick={() => setEvaluation((prev) => ({ ...prev, maintenanceCooperation: star }))}>
+                <button key={star} type="button" onClick={() => setEvaluation(prev => prev ? { ...prev, maintenanceCooperation: star } : { negotiationFlexibility: 0, renewalManners: 0, interferenceIndex: 0, maintenanceCooperation: star })}>
                   <FaStar className={star <= (evaluation?.maintenanceCooperation || 0) ? 'text-yellow-400' : 'text-gray-300'} />
                 </button>
               ))}
@@ -1197,7 +1190,7 @@ export default function LandlordReportComponent({
       <div className="card-premium">
         <div className="flex items-center gap-2">
           <FaMapMarkerAlt className="text-accent-dark text-lg" />
-          <h2 className="text-2xl font-bold text-navy-900">{report.address}</h2>
+          <h2 className="text-2xl font-bold text-navy-900">{report?.address ?? ''}</h2>
         </div>
       </div>
 
@@ -1236,7 +1229,7 @@ export default function LandlordReportComponent({
         </div>
       )}
 
-      {(report.userNotes || displayKeywordTags.length > 0) && (
+      {(report?.userNotes || displayKeywordTags.length > 0) && (
         <div className="card">
           <h4 className="text-lg font-bold text-navy-900 mb-4 flex items-center">
             <span className="w-1 h-6 bg-blue-500 rounded-full mr-2" />
@@ -1379,204 +1372,12 @@ export default function LandlordReportComponent({
                       <FaThumbsDown /> 별로예요 {review.unhelpful}
                     </button>
                     <button
-                      className="flex items-center gap-1 text-xs text-navy-500 hover:text-accent"
-                      onClick={() => handleToggleReviewComment(review.id)}
+                      className="flex items-center gap-1 text-xs text-red-400 hover:text-red-600"
+                      onClick={() => setReportTargetReviewId(review.id)}
                     >
-                      <FaComments /> 댓글 {(reviewComments[review.id] || []).length}
+                      <FaExclamationTriangle /> 신고하기
                     </button>
                   </div>
-
-                  {openReviewCommentId === review.id && (
-                    <div className="mt-3 space-y-3 min-h-[260px]" style={{ overflowAnchor: 'none' }}>
-                      <div className="space-y-2">
-                        <div className="flex items-center justify-between text-xs text-navy-500">
-                          <span>댓글 입력</span>
-                          <span>댓글 {((reviewComments[review.id] || []).length).toString()}개</span>
-                        </div>
-                        <input
-                          type="text"
-                          value={reviewCommentDrafts[review.id] || ''}
-                          onChange={(e) => setReviewCommentDrafts((prev) => ({ ...prev, [review.id]: e.target.value }))}
-                          placeholder="댓글을 입력하세요"
-                          className="input-field py-2 text-sm"
-                        />
-                        <div className="flex flex-col gap-2 border-t border-gray-100 pt-2 sm:flex-row sm:items-center sm:justify-between">
-                          <button
-                            onClick={() => handleToggleReviewComment(review.id)}
-                            className="text-navy-500 text-sm font-semibold hover:text-navy-700 transition whitespace-nowrap"
-                          >
-                            댓글 접기
-                          </button>
-                          <div className="flex flex-wrap items-center gap-3 sm:justify-end">
-                            <label className="flex items-center gap-2 text-xs text-navy-500">
-                              <input
-                                type="checkbox"
-                                checked={!!reviewCommentSecretDrafts[review.id]}
-                                onChange={(e) =>
-                                  setReviewCommentSecretDrafts((prev) => ({ ...prev, [review.id]: e.target.checked }))
-                                }
-                              />
-                              비밀 댓글
-                            </label>
-                            <button
-                              type="button"
-                              onClick={() => handleSubmitReviewComment(review.id)}
-                              className="px-4 py-2 bg-navy-600 text-white rounded-lg text-sm font-semibold hover:bg-navy-700 transition whitespace-nowrap"
-                            >
-                              등록
-                            </button>
-                            <button
-                              onClick={() => handleCancelReviewCommentInput(review.id)}
-                              className="px-4 py-2 border border-gray-200 text-navy-600 rounded-lg text-sm font-semibold hover:border-navy-300 transition whitespace-nowrap"
-                            >
-                              취소
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="h-48 overflow-y-auto pr-1">
-                        {(reviewComments[review.id] || []).map((comment) => {
-                          if (comment.isSecret && !(comment.isMine || isMine)) {
-                            return null
-                          }
-                          const isEditing = editingCommentIds[review.id] === comment.id
-                          return (
-                            <div
-                              key={`${review.id}-comment-${comment.id}`}
-                              className="text-sm text-navy-600 bg-gray-50 border border-gray-100 rounded-lg px-3 py-2"
-                            >
-                              {isEditing ? (
-                                <div className="flex gap-2">
-                                  <input
-                                    type="text"
-                                    value={editingCommentDrafts[comment.id] || ''}
-                                    onChange={(e) =>
-                                      setEditingCommentDrafts((prev) => ({
-                                        ...prev,
-                                        [comment.id]: e.target.value,
-                                      }))
-                                    }
-                                    className="input-field py-1 text-xs"
-                                  />
-                                  <button
-                                    onClick={() => handleSaveReviewComment(review.id, comment.id)}
-                                    className="text-xs text-navy-700 hover:text-accent"
-                                  >
-                                    저장
-                                  </button>
-                                  <button
-                                    onClick={() => handleCancelEditReviewComment(review.id, comment.id)}
-                                    className="text-xs text-navy-500 hover:text-navy-700"
-                                  >
-                                    취소
-                                  </button>
-                                </div>
-                              ) : (
-                                <div className="flex items-start justify-between gap-3">
-                                  <div className="flex-1 min-w-0">
-                                    <div className="text-[11px] text-navy-500 mb-1">
-                                      {comment.isSecret && <span className="mr-1 text-amber-600">(비밀)</span>}
-                                      {comment.author}
-                                      <span className="ml-1">· {comment.timestamp}</span>
-                                    </div>
-                                    <span>{comment.text}</span>
-                                    <div className="mt-2 flex items-center gap-2 text-xs">
-                                      <button
-                                        onClick={() => handleToggleReviewReply(comment.id)}
-                                        className="inline-flex items-center gap-1 rounded-full border border-gray-200 px-2.5 py-1 font-semibold text-navy-500 hover:text-navy-700 hover:border-navy-300 transition"
-                                      >
-                                        답글
-                                      </button>
-                                    </div>
-                                    {reviewReplyOpenIds[comment.id] && (
-                                      <div className="mt-2 rounded-lg border border-gray-100 bg-gray-50/70 p-2 space-y-2">
-                                        <input
-                                          type="text"
-                                          value={reviewReplyDrafts[comment.id] || ''}
-                                          onChange={(e) =>
-                                            setReviewReplyDrafts((prev) => ({
-                                              ...prev,
-                                              [comment.id]: e.target.value,
-                                            }))
-                                          }
-                                          placeholder="답글 입력"
-                                          className="input-field py-2 text-sm bg-white w-full"
-                                        />
-                                        <div className="flex flex-wrap items-center justify-between gap-2">
-                                          <label className="flex items-center gap-2 text-xs text-navy-500">
-                                            <input
-                                              type="checkbox"
-                                              checked={!!reviewReplySecretDrafts[comment.id]}
-                                              onChange={(e) =>
-                                                setReviewReplySecretDrafts((prev) => ({
-                                                  ...prev,
-                                                  [comment.id]: e.target.checked,
-                                                }))
-                                              }
-                                            />
-                                            비밀 답글
-                                          </label>
-                                          <div className="flex items-center justify-end gap-2">
-                                          <button
-                                            onClick={() => handleSubmitReviewReply(review.id, comment.id)}
-                                            className="px-3 py-1.5 bg-navy-700 text-white rounded-lg text-xs font-semibold hover:bg-navy-800 transition whitespace-nowrap"
-                                          >
-                                            등록
-                                          </button>
-                                          <button
-                                            onClick={() => handleCancelReviewReply(comment.id)}
-                                            className="px-3 py-1.5 border border-gray-200 text-navy-600 rounded-lg text-xs font-semibold hover:border-navy-300 transition whitespace-nowrap"
-                                          >
-                                            취소
-                                          </button>
-                                          </div>
-                                        </div>
-                                      </div>
-                                    )}
-                                    {(comment.replies || []).length > 0 && (
-                                      <div className="mt-2">
-                                        <button
-                                          onClick={() => handleToggleReviewReplyList(comment.id)}
-                                          className="text-xs font-semibold text-navy-500 hover:text-accent"
-                                        >
-                                          {reviewReplyVisibleIds[comment.id]
-                                            ? '답글 숨기기'
-                                            : `답글 보기 ${comment.replies?.length || 0}`}
-                                        </button>
-                                        {reviewReplyVisibleIds[comment.id] &&
-                                          renderReviewReplies(comment.replies || [], review.id, comment.id, isMine)}
-                                      </div>
-                                    )}
-                                  </div>
-                                  {comment.isMine && (
-                                    <div className="flex items-center gap-2">
-                                      <button
-                                        onClick={() => handleEditReviewComment(review.id, comment)}
-                                        className="text-xs text-navy-500 hover:text-accent"
-                                      >
-                                        수정
-                                      </button>
-                                      <button
-                                        onClick={() => handleDeleteReviewComment(review.id, comment.id)}
-                                        className="text-xs text-red-500 hover:underline"
-                                      >
-                                        삭제
-                                      </button>
-                                    </div>
-                                  )}
-                                </div>
-                              )}
-                            </div>
-                          )
-                        })
-                        }
-                        {(reviewComments[review.id] || []).length === 0 && (
-                          <div className="text-xs text-navy-500 opacity-0 select-none">아직 댓글이 없습니다.</div>
-                        )}
-                      </div>
-                    </div>
-                  )}
                 </div>
               )
             })}
@@ -1597,7 +1398,7 @@ export default function LandlordReportComponent({
       {reviews.length === 0 && (
         <div className="card text-center">
           <div className="py-8">
-            <FaComments className="text-4xl text-gray-400 mx-auto mb-3" />
+            <FaUser className="text-4xl text-gray-400 mx-auto mb-3" />
             <h4 className="text-xl font-bold text-navy-900 mb-2">아직 등록된 이야기가 없습니다</h4>
             <p className="text-navy-600">이 주소에 대한 경험을 공유해주세요.</p>
           </div>
@@ -1620,6 +1421,21 @@ export default function LandlordReportComponent({
             )}
           </div>
         </div>
+      )}
+
+      {/* 신고 모달 */}
+      {reportTargetReviewId && authToken && (
+        <ReportModal
+          targetReviewId={reportTargetReviewId}
+          targetSurveyId={report?.id}
+          token={authToken}
+          onClose={() => setReportTargetReviewId(null)}
+          onSubmitted={() => {
+            setReportTargetReviewId(null);
+            // 블라인드 처리된 리뷰를 목록에서 제거
+            setReviews((prev) => prev.filter((r) => r.id !== reportTargetReviewId));
+          }}
+        />
       )}
     </div>
   )

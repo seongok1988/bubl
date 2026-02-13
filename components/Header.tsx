@@ -2,7 +2,7 @@
 
 import { FaBuilding } from "react-icons/fa";
 import { useAuthUser } from "@/lib/hooks/useAuthUser";
-import { supabase } from "@/lib/supabase";
+import { supabase } from "@/services/supabase";
 
 export default function Header({ onLogoClick, onLoginClick }: { onLogoClick?: () => void, onLoginClick?: () => void }) {
   const { user, loading } = useAuthUser();
@@ -30,12 +30,20 @@ export default function Header({ onLogoClick, onLoginClick }: { onLogoClick?: ()
           </button>
           {!loading && (
             user ? (
-              <button
-                onClick={handleLogout}
-                className="ml-auto px-6 py-2 bg-gradient-to-r from-gray-400 to-gray-600 text-white font-semibold rounded-lg hover:shadow-lg transition transform hover:scale-105 whitespace-nowrap"
-              >
-                로그아웃
-              </button>
+              <div className="ml-auto flex items-center gap-3">
+                <a
+                  href="/mypage"
+                  className="px-4 py-2 text-sm font-semibold text-navy-700 hover:text-accent transition whitespace-nowrap"
+                >
+                  마이페이지
+                </a>
+                <button
+                  onClick={handleLogout}
+                  className="px-6 py-2 bg-gradient-to-r from-gray-400 to-gray-600 text-white font-semibold rounded-lg hover:shadow-lg transition transform hover:scale-105 whitespace-nowrap"
+                >
+                  로그아웃
+                </button>
+              </div>
             ) : (
               <button
                 onClick={onLoginClick}

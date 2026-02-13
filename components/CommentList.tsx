@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { fetchComments, createComment } from "../lib/api/comment";
+import { fetchPostComments, createComment, updateComment, deleteComment } from "@/lib/api/comment";
 
 interface Comment {
   id: string;
@@ -28,21 +28,23 @@ export default function CommentList({ postId, currentUserId, postAuthorId }: Pro
   // import { updateComment, deleteComment } from '../lib/api/comment';
 
   const load = () => {
-    fetchComments(postId, currentUserId, postAuthorId)
+    fetchPostComments(postId, currentUserId, postAuthorId)
       .then(setComments)
-      .catch(e => setError(e.message));
+      .catch((e: any) => setError(e.message));
   };
 
   useEffect(() => { load(); }, [postId, currentUserId, postAuthorId]);
 
   const handleSubmit = async () => {
     try {
-      await createComment({ post_id: postId, user_id: currentUserId, content: input, is_secret: isSecret });
+      const result = await createComment({ post_id: postId, content: input, is_secret: isSecret });
+      console.log('insert 결과:', result);
       setInput("");
       setIsSecret(false);
       load();
     } catch (e: any) {
       setError(e.message);
+      console.log('insert 결과:', null, e);
     }
   };
 
@@ -61,7 +63,7 @@ export default function CommentList({ postId, currentUserId, postAuthorId }: Pro
                 </label>
                 <button onClick={async () => {
                   try {
-                    // await updateComment({ comment_id: c.id, content: editContent, is_secret: editSecret });
+                    await updateComment({ comment_id: c.id, content: editContent, is_secret: editSecret });
                     setEditId(null);
                     setEditContent("");
                     setEditSecret(false);
@@ -86,7 +88,7 @@ export default function CommentList({ postId, currentUserId, postAuthorId }: Pro
                     <button onClick={async () => {
                       if (!window.confirm("정말 삭제하시겠습니까?")) return;
                       try {
-                        // await deleteComment({ comment_id: c.id });
+                        await deleteComment({ comment_id: c.id });
                         load();
                       } catch (e: any) {
                         setError(e.message);
@@ -104,7 +106,7 @@ export default function CommentList({ postId, currentUserId, postAuthorId }: Pro
         <label>
           <input type="checkbox" checked={isSecret} onChange={e => setIsSecret(e.target.checked)} /> 비밀댓글
         </label>
-        <button onClick={handleSubmit}>댓글 작성</button>
+        <button type="button" onClick={handleSubmit}>댓글 작성</button>
       </div>
       {error && <div style={{ color: "red" }}>{error}</div>}
     </div>

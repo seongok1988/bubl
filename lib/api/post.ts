@@ -1,4 +1,4 @@
-import { supabase } from '../supabase'
+import { supabase } from '@/services/supabase'
 
 // 게시글 목록 조회 (서버 API 사용)
 export async function fetchPosts(communityId: string) {

@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
-import { createSurvey, addSurveyQuestion, submitSurveyAnswer } from "../lib/api/survey";
-import { supabase } from "../lib/supabase";
+import { createSurvey, addSurveyQuestion, submitSurveyAnswer } from "@/lib/api/survey";
+import { supabase } from "@/services/supabase";
 
 interface Props {
   communityId: string;

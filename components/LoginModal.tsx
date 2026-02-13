@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { FaTimes, FaComment, FaEye, FaEyeSlash, FaEnvelope, FaBuilding } from 'react-icons/fa'
-import { supabase } from '@/lib/supabase'
+import { supabase } from '@/services/supabase'
 
 interface LoginModalProps {
   isOpen: boolean

@@ -8,8 +8,12 @@ import CommunitySection from "@/components/CommunitySection";
 import ConsultSection from "@/components/ConsultSection";
 import LoginModal from "@/components/LoginModal";
 import AuthSection from "@/components/AuthSection";
+import RollingBanner from "@/components/RollingBanner";
+import { fetchCommunityPosts } from "@/lib/api/communityPost";
+import { useAutoLogout } from "@/lib/hooks/useAutoLogout";
 
 export default function Home() {
+  useAutoLogout();
   const [activeTab, setActiveTab] = useState<'search' | 'community' | 'consult'>('search');
   const [showReputationForm, setShowReputationForm] = useState(false);
   const [isLoginOpen, setIsLoginOpen] = useState(false);
@@ -18,6 +22,22 @@ export default function Home() {
   const [postCount, setPostCount] = useState<number | null>(null);
   const contentRef = useRef<HTMLDivElement | null>(null);
   const tabsRef = useRef<HTMLElement | null>(null);
+  const [bannerItems, setBannerItems] = useState<{ id: string; type: 'survey' | 'post'; label: string; text: string }[]>([]);
+
+  // 롤링 배너 데이터
+  useEffect(() => {
+    fetchCommunityPosts({ sort: 'recent', limit: 10 })
+      .then((posts) => {
+        const items = posts.map((p) => ({
+          id: p.id,
+          type: 'post' as const,
+          label: p.category,
+          text: p.title,
+        }));
+        setBannerItems(items);
+      })
+      .catch(() => {});
+  }, []);
 
   useEffect(() => {
     if (activeTab === 'community') {
@@ -153,6 +173,21 @@ export default function Home() {
                 <div className="text-sm text-navy-600">상담 완료</div>
               </div>
             </div>
+
+            {/* 롤링 배너 */}
+            {bannerItems.length > 0 && (
+              <div className="mt-8">
+                <RollingBanner
+                  items={bannerItems}
+                  interval={3000}
+                  onItemClick={(item) => {
+                    if (item.type === 'post') {
+                      setActiveTab('community');
+                    }
+                  }}
+                />
+              </div>
+            )}
           </div>
         </section>
       )}

@@ -1,11 +1,12 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
-import { useAuthUser } from '../lib/hooks/useAuthUser'
+import { useAuthUser } from '@/lib/hooks/useAuthUser'
 import { FaSearch, FaMapMarkerAlt } from 'react-icons/fa'
-import LandlordReportComponent, { LandlordEvaluation, LandlordReport, ReputationSubmitSummary } from './LandlordReportComponent'
+import LandlordReportComponent from './LandlordReportComponent'
+import type { LandlordEvaluation, LandlordReport, ReputationSubmitSummary } from '@/types/db'
 import KakaoAddressSearch from './KakaoAddressSearch'
-import { fetchLandlordReportByAddress } from '../lib/api/landlordReport'
+import { fetchLandlordReportByAddress } from '@/lib/api/landlordReport'
 
 interface SearchSectionProps {
   showReputationForm: boolean
@@ -13,6 +14,7 @@ interface SearchSectionProps {
 }
 
 export default function SearchSection({ showReputationForm, setShowReputationForm }: SearchSectionProps) {
+  const { user } = useAuthUser();
   const [searchQuery, setSearchQuery] = useState('')
   const [report, setReport] = useState<LandlordReport | null>(null)
   const [isLoading, setIsLoading] = useState(false)
@@ -158,7 +160,6 @@ export default function SearchSection({ showReputationForm, setShowReputationFor
     setIsLoading(false)
   }
 
-  const { user } = useAuthUser();
   const handleOpenReputationForm = () => {
     if (!user) {
       try { window.dispatchEvent(new CustomEvent('bubl:open-login')) } catch {}

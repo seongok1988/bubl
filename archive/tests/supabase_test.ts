@@ -1,4 +1,4 @@
-import { testSupabaseConnection } from './lib/supabase.ts';
+import { testSupabaseConnection } from '../../services/supabase';
 
 (async () => {
   const result = await testSupabaseConnection()

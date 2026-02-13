@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { FaEye, FaEyeSlash, FaBuilding } from 'react-icons/fa'
-import { supabase } from '@/lib/supabase'
+import { supabase } from '@/services/supabase'
 
 export default function ResetPasswordPage() {
   const router = useRouter()

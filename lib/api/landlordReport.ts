@@ -26,12 +26,28 @@ export async function createLandlordReport(report: LandlordReportInsert) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) throw new Error('로그인이 필요합니다.');
 
-  // positiveTraits/negativeTraits → positive_traits/negative_traits 변환
-  const { positiveTraits, negativeTraits, landlord_id, ...rest } = report as any;
+  // camelCase → snake_case 변환 (DB 컬럼명과 일치시키기)
+  const {
+    positiveTraits,
+    negativeTraits,
+    landlordName,
+    totalReviews,
+    userNotes,
+    landlord_id,
+    ...rest
+  } = report as any;
+
   const insertObj: Record<string, unknown> = {
     id: uuidv4(),
     author_id: user.id,
     ...rest,
+    // landlordName → landlord_name
+    ...(landlordName !== undefined ? { landlord_name: landlordName } : {}),
+    // totalReviews → total_reviews
+    ...(totalReviews !== undefined ? { total_reviews: totalReviews } : {}),
+    // userNotes → user_notes
+    ...(userNotes !== undefined ? { user_notes: userNotes } : {}),
+    // positiveTraits → positive_traits
     ...(positiveTraits ? { positive_traits: positiveTraits } : {}),
     ...(negativeTraits ? { negative_traits: negativeTraits } : {}),
     ...((report as any).positive_traits ? { positive_traits: (report as any).positive_traits } : {}),

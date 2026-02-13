@@ -5,8 +5,10 @@ import { FaStar, FaMapMarkerAlt, FaUser, FaThumbsUp, FaThumbsDown, FaExclamation
 import { supabase } from '@/services/supabase';
 import { createLandlordReport } from '@/lib/api/landlordReport';
 import { createComment } from '@/lib/api/comment';
+import { createLegalLog } from '@/lib/api/legalLog';
 import GaugeChart from './GaugeChart';
 import ReportModal from './ReportModal';
+import LegalDisclaimerCheckbox from './LegalDisclaimerCheckbox';
 import type {
   LandlordReport,
   LandlordEvaluation,
@@ -127,6 +129,7 @@ export default function LandlordReportComponent(props: LandlordReportProps) {
   const [topKeywordTags, setTopKeywordTags] = useState<string[]>([])
   const [reportTargetReviewId, setReportTargetReviewId] = useState<string | null>(null)
   const [authToken, setAuthToken] = useState<string>('')
+  const [legalAgreed, setLegalAgreed] = useState(false)
 
   // 인증 토큰 가져오기
   useEffect(() => {
@@ -532,6 +535,16 @@ export default function LandlordReportComponent(props: LandlordReportProps) {
         averageEvaluation: nextAverage,
         topKeywords: nextTopKeywords,
       });
+      // 법적 면책 동의 로그 저장
+      if (legalAgreed && authToken) {
+        try {
+          await createLegalLog({ survey_id: saved?.id }, authToken);
+        } catch (logError) {
+          console.error('법적 동의 로그 저장 실패:', logError);
+        }
+      }
+      // 동의 상태 초기화
+      setLegalAgreed(false);
       alert('평판이 Supabase DB에 저장되었습니다!');
     } catch (error) {
       let msg = '';
@@ -1159,11 +1172,12 @@ export default function LandlordReportComponent(props: LandlordReportProps) {
             이미 해당 주소로 평판이 등록되었습니다. 다른 주소를 검색해 주세요.
           </p>
         )}
+        <LegalDisclaimerCheckbox agreed={legalAgreed} onChange={setLegalAgreed} />
         <button
           type="submit"
-          disabled={isAddressLocked}
+          disabled={isAddressLocked || !legalAgreed}
           className={`w-full bg-gradient-to-r from-accent to-accent-dark text-white font-bold py-3 px-4 rounded-xl transition ${
-            isAddressLocked ? 'opacity-60 cursor-not-allowed' : 'hover:shadow-lg'
+            (isAddressLocked || !legalAgreed) ? 'opacity-60 cursor-not-allowed' : 'hover:shadow-lg'
           }`}
         >
           평판 등록
